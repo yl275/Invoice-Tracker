@@ -60,6 +60,29 @@ This project is built using a modern .NET technology stack, following Clean Arch
 4. Access API Documentation:
    Once started, you can typically access the interactive API documentation at `http://localhost:5207/scalar/v1` (depending on your specific `launchSettings.json` configuration).
 
+## ☁️ Deploy to Render
+
+[Render](https://render.com) supports Docker + PostgreSQL. Two options:
+
+### Option A: Blueprint (recommended)
+
+1. Push this repo to GitHub/GitLab/Bitbucket.
+2. Open [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint**.
+3. Connect the repo; Render will detect `render.yaml` at the root.
+4. Click **Deploy Blueprint**.
+5. After deploy, the API is at `https://<your-service-name>.onrender.com`. Use `/health` for health checks and `/scalar/v1` for API docs (if enabled).
+
+### Option B: Manual setup
+
+1. In Render: **New** → **PostgreSQL** → create a database (e.g. plan **Free**), note the **Internal Database URL**.
+2. **New** → **Web Service** → connect the repo.
+3. Set **Runtime** to **Docker** (use repo root Dockerfile).
+4. Add **Environment Variables**:
+   - `ASPNETCORE_ENVIRONMENT` = `Production`
+   - `ASPNETCORE_URLS` = `http://0.0.0.0:10000`
+   - `ConnectionStrings__DefaultConnection` = *(paste the Internal Database URL from step 1)*
+5. Deploy. The app applies EF Core migrations on startup.
+
 ## 🧪 How to Test
 
 This project includes two types of tests: Unit Tests (for business logic) and Integration Tests (for API endpoints).

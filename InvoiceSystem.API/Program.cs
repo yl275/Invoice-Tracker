@@ -25,6 +25,12 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Apply migrations in all environments except Testing (required for production e.g. Render)
+if (app.Environment.EnvironmentName != "Testing")
+{
+    app.EnsureMigrationsApplied();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testing")
 {
@@ -44,6 +50,7 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testi
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 app.Run();
 

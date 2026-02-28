@@ -1,0 +1,25 @@
+# Render Blueprint: InvoiceSystem API + PostgreSQL
+# https://render.com/docs/blueprint-spec
+
+databases:
+  - name: invoicesystem-db
+    plan: free
+    databaseName: InvoiceSystem
+
+services:
+  - type: web
+    runtime: docker
+    name: invoicesystem-api
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:10000
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: invoicesystem-db
+          property: connectionString
