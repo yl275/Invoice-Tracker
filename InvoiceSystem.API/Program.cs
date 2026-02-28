@@ -37,6 +37,12 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Run migrations in background (Production) so health check passes quickly
+if (app.Environment.EnvironmentName != "Testing")
+{
+    app.EnsureMigrationsApplied();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testing")
 {
@@ -59,6 +65,7 @@ app.MapScalarApiReference(options =>
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 app.Run();
 
