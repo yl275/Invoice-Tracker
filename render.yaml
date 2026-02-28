@@ -25,11 +25,10 @@ services:
           name: invoicesystem-db
           property: connectionString
 
-  # Frontend (Static Site) – build uses API host for VITE_API_HOST
+  # Frontend (Static Site) – build uses API host for VITE_API_HOST (free by default)
   - type: web
     runtime: static
     name: invoicesystem-frontend
-    plan: free
     rootDir: InvoiceSystem.Frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
