@@ -18,8 +18,9 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      # Must match Dockerfile EXPOSE 8080 so Render health check reaches the app
       - key: ASPNETCORE_URLS
-        value: http://0.0.0.0:10000
+        value: http://0.0.0.0:8080
       - key: ConnectionStrings__DefaultConnection
         fromDatabase:
           name: invoicesystem-db
