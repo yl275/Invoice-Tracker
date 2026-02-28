@@ -32,6 +32,11 @@ services:
     rootDir: InvoiceSystem.Frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
+    routes:
+      # SPA: serve index.html for all routes so React Router works on refresh
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
       - key: VITE_API_HOST
         fromService:
