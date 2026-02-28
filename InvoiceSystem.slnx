@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="InvoiceSystem.API/InvoiceSystem.API.csproj" />
+  <Project Path="InvoiceSystem.Application/InvoiceSystem.Application.csproj" />
+  <Project Path="InvoiceSystem.Domain/InvoiceSystem.Domain.csproj" />
+  <Project Path="InvoiceSystem.Infrastructure/InvoiceSystem.Infrastructure.csproj" />
+  <Project Path="InvoiceSystem.IntegrationTests/InvoiceSystem.IntegrationTests.csproj" Id="9c5c9bb9-71a6-4040-a819-aa5680c6f179" />
+  <Project Path="InvoiceSystem.UnitTests/InvoiceSystem.UnitTests.csproj" Id="fd6fa7d2-1e8d-466b-9bd0-ffe66c7ba274" />
+</Solution>
