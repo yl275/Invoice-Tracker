@@ -1,9 +1,13 @@
 using InvoiceSystem.API;
 using InvoiceSystem.API.Extensions;
+using InvoiceSystem.API.Middleware;
 using InvoiceSystem.Application;
+using InvoiceSystem.Application.Interfaces;
 using InvoiceSystem.Infrastructure;
 using InvoiceSystem.Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 // Allow UTC DateTimes to be saved to PostgreSQL timestamp columns
@@ -14,13 +18,32 @@ var builder = WebApplication.CreateBuilder(args);
 // Register Application and Infrastructure layers
 var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-// Render provides postgresql:// URI; Npgsql expects key=value format.
 var connectionString = ConnectionStringHelper.ConvertPostgresUriToNpgsqlFormat(rawConnectionString);
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddApplication();
 if (builder.Environment.EnvironmentName != "Testing")
 {
     builder.Services.AddInfrastructure(connectionString);
+}
+
+// Clerk JWT authentication (when configured)
+var clerkIssuer = builder.Configuration["Clerk:Issuer"];
+if (!string.IsNullOrEmpty(clerkIssuer))
+{
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.Authority = clerkIssuer.TrimEnd('/') + "/";
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        });
 }
 
 builder.Services.AddControllers();
@@ -54,6 +77,18 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testi
     }
 }
 
+// Dev/Test bypass: when Clerk is not configured, accept X-User-Id header (default: user_demo)
+if (string.IsNullOrEmpty(builder.Configuration["Clerk:Issuer"]) &&
+    (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testing"))
+{
+    app.UseMiddleware<DevUserBypassMiddleware>();
+}
+else if (!string.IsNullOrEmpty(clerkIssuer))
+{
+    app.UseAuthentication();
+}
+
+app.UseAuthorization();
 app.UseCors();
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
@@ -62,8 +97,6 @@ app.MapScalarApiReference(options =>
            .WithTheme(ScalarTheme.DeepSpace)
            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
-
-app.UseAuthorization();
 
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));

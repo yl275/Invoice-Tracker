@@ -1,21 +1,27 @@
 using FluentAssertions;
 using InvoiceSystem.Application.DTOs.Client;
+using InvoiceSystem.Application.Interfaces;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Services;
 using Moq;
 using InvoiceSystem.Domain.Entities;
+using InvoiceSystem.UnitTests;
 
 namespace InvoiceSystem.UnitTests.Services
 {
     public class ClientServiceTests
     {
         private readonly Mock<IClientRepository> _clientRepositoryMock;
+        private readonly Mock<IUserContext> _userContextMock;
         private readonly ClientService _clientService;
 
         public ClientServiceTests()
         {
             _clientRepositoryMock = new Mock<IClientRepository>();
-            _clientService = new ClientService(_clientRepositoryMock.Object);
+            _userContextMock = new Mock<IUserContext>();
+            _userContextMock.Setup(x => x.UserId).Returns(TestData.UserId);
+            _userContextMock.Setup(x => x.HasUser).Returns(true);
+            _clientService = new ClientService(_clientRepositoryMock.Object, _userContextMock.Object);
         }
 
         [Fact]
@@ -49,7 +55,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var clientId = Guid.NewGuid();
-            var client = new Client("123", "Test Client", "0400");
+            var client = new Client(TestData.UserId, "123", "Test Client", "0400");
             // Set the ID via reflection since it's private set, or rely on Entity behavior
             // Since we can't easily set protected/private set properties without reflection or constructor
             // Assuming Client constructor or EF sets ID. Entity Base usually has protected set.
@@ -91,8 +97,8 @@ namespace InvoiceSystem.UnitTests.Services
             // Arrange
             var clients = new List<Client>
             {
-                new Client("123", "Client 1", "04001"),
-                new Client("456", "Client 2", "04002")
+                new Client(TestData.UserId, "123", "Client 1", "04001"),
+                new Client(TestData.UserId, "456", "Client 2", "04002")
             };
 
             _clientRepositoryMock.Setup(x => x.ListAsync())
@@ -111,7 +117,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var clientId = Guid.NewGuid();
-            var client = new Client("ABN", "Old Name", "Old Phone");
+            var client = new Client(TestData.UserId, "ABN", "Old Name", "Old Phone");
             var updateDto = new UpdateClientDto { Name = "New Name", PhoneNumber = "New Phone" };
 
             _clientRepositoryMock.Setup(x => x.GetByIdAsync(clientId))
@@ -186,7 +192,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var clientId = Guid.NewGuid();
-            var client = new Client("123", "Old", "123");
+            var client = new Client(TestData.UserId, "123", "Old", "123");
             var updateDto = new UpdateClientDto { Name = "", PhoneNumber = "New" };
 
             _clientRepositoryMock.Setup(x => x.GetByIdAsync(clientId)).ReturnsAsync(client);
@@ -203,7 +209,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var clientId = Guid.NewGuid();
-            var client = new Client("123", "Old", "123");
+            var client = new Client(TestData.UserId, "123", "Old", "123");
             var updateDto = new UpdateClientDto { Name = "New", PhoneNumber = "" };
 
             _clientRepositoryMock.Setup(x => x.GetByIdAsync(clientId)).ReturnsAsync(client);

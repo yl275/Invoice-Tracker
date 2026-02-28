@@ -14,4 +14,22 @@ const api = axios.create({
   },
 });
 
+let authInterceptorId: number | null = null;
+
+/** Set auth: pass getToken when using Clerk, or null for dev bypass (X-User-Id). */
+export function setApiAuth(getToken: (() => Promise<string | null>) | null) {
+  if (authInterceptorId != null) {
+    api.interceptors.request.eject(authInterceptorId);
+  }
+  authInterceptorId = api.interceptors.request.use(async (config) => {
+    const token = getToken ? await getToken() : null;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else if (import.meta.env.DEV) {
+      config.headers["X-User-Id"] = "user_demo";
+    }
+    return config;
+  });
+}
+
 export default api;

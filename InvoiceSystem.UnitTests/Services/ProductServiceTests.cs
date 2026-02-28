@@ -1,21 +1,27 @@
 using FluentAssertions;
 using InvoiceSystem.Application.DTOs.Product;
+using InvoiceSystem.Application.Interfaces;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Services;
 using Moq;
 using InvoiceSystem.Domain.Entities;
+using InvoiceSystem.UnitTests;
 
 namespace InvoiceSystem.UnitTests.Services
 {
     public class ProductServiceTests
     {
         private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly Mock<IUserContext> _userContextMock;
         private readonly ProductService _productService;
 
         public ProductServiceTests()
         {
             _productRepositoryMock = new Mock<IProductRepository>();
-            _productService = new ProductService(_productRepositoryMock.Object);
+            _userContextMock = new Mock<IUserContext>();
+            _userContextMock.Setup(x => x.UserId).Returns(TestData.UserId);
+            _userContextMock.Setup(x => x.HasUser).Returns(true);
+            _productService = new ProductService(_productRepositoryMock.Object, _userContextMock.Object);
         }
 
         [Fact]
@@ -64,7 +70,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product("Widget", "SKU", 10m);
+            var product = new Product(TestData.UserId, "Widget", "SKU", 10m);
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
 
             // Act
@@ -96,8 +102,8 @@ namespace InvoiceSystem.UnitTests.Services
             // Arrange
             var products = new List<Product>
             {
-                new Product("P1", "S1", 10m),
-                new Product("P2", "S2", 20m)
+                new Product(TestData.UserId, "P1", "S1", 10m),
+                new Product(TestData.UserId, "P2", "S2", 20m)
             };
             _productRepositoryMock.Setup(x => x.ListAsync()).ReturnsAsync(products);
 
@@ -113,7 +119,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product("Old Name", "Old SKU", 5m);
+            var product = new Product(TestData.UserId, "Old Name", "Old SKU", 5m);
             var updateDto = new UpdateProductDto
             {
                 Name = "New Name",
@@ -153,7 +159,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product("Name", "SKU", 10m);
+            var product = new Product(TestData.UserId, "Name", "SKU", 10m);
             var updateDto = new UpdateProductDto { Name = "New Name", SKU = "New SKU", Price = -5m };
 
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
@@ -170,7 +176,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product("Name", "SKU", 10m);
+            var product = new Product(TestData.UserId, "Name", "SKU", 10m);
             var updateDto = new UpdateProductDto { Name = "", SKU = "New SKU", Price = 10m };
 
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
@@ -187,7 +193,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product("Name", "SKU", 10m);
+            var product = new Product(TestData.UserId, "Name", "SKU", 10m);
             var updateDto = new UpdateProductDto { Name = "New Name", SKU = "", Price = 10m };
 
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);

@@ -2,6 +2,7 @@ using InvoiceSystem.Domain.Entities;
 using InvoiceSystem.Application.DTOs.Invoice;
 using InvoiceSystem.Application.DTOs.Client;
 using InvoiceSystem.Application.DTOs.Product;
+using InvoiceSystem.Application.Interfaces;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Interfaces.Services;
 
@@ -12,20 +13,25 @@ namespace InvoiceSystem.Application.Services
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IClientRepository _clientRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IUserContext _userContext;
 
-        public InvoiceService(IInvoiceRepository invoiceRepository, IClientRepository clientRepository, IProductRepository productRepository)
+        public InvoiceService(IInvoiceRepository invoiceRepository, IClientRepository clientRepository, IProductRepository productRepository, IUserContext userContext)
         {
             _invoiceRepository = invoiceRepository;
             _clientRepository = clientRepository;
             _productRepository = productRepository;
+            _userContext = userContext;
         }
 
         public async Task<InvoiceDto> CreateInvoiceAsync(CreateInvoiceDto createInvoiceDto)
         {
+            if (!_userContext.HasUser)
+                throw new UnauthorizedAccessException("User must be authenticated to create an invoice.");
+
             var client = await _clientRepository.GetByIdAsync(createInvoiceDto.ClientId);
             if (client == null) throw new Exception("Client not found");
 
-            var invoice = new Invoice(createInvoiceDto.InvoiceCode, createInvoiceDto.InvoiceDate, client);
+            var invoice = new Invoice(_userContext.UserId!, createInvoiceDto.InvoiceCode, createInvoiceDto.InvoiceDate, client);
 
             if (createInvoiceDto.Items == null || !createInvoiceDto.Items.Any())
                 throw new ArgumentException("Invoice must contain at least one item.");

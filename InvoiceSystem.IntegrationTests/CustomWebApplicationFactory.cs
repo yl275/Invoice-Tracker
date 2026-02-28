@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using InvoiceSystem.Application.Interfaces;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Infrastructure.Data;
 using InvoiceSystem.Infrastructure.Repositories;
@@ -10,34 +12,50 @@ namespace InvoiceSystem.IntegrationTests
 {
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
+        public const string TestUserId = "user_test";
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Testing");
 
             builder.ConfigureServices(services =>
             {
-                var descriptor = services.SingleOrDefault(
+                var dbDescriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-                if (descriptor != null) services.Remove(descriptor);
+                if (dbDescriptor != null) services.Remove(dbDescriptor);
 
-                // Register InMemory DbContext
+                var userContextDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(IUserContext));
+                if (userContextDescriptor != null) services.Remove(userContextDescriptor);
+
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("InMemoryDbForTesting");
                 });
 
-                // Register Repositories (since AddInfrastructure is skipped)
                 services.AddScoped<IClientRepository, ClientRepository>();
                 services.AddScoped<IProductRepository, ProductRepository>();
                 services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 
-                // Ensure the database is created
+                services.AddScoped<IUserContext, TestUserContext>();
+
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
-                var scopedServices = scope.ServiceProvider;
-                var db = scopedServices.GetRequiredService<ApplicationDbContext>();
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 db.Database.EnsureCreated();
             });
         }
+
+        protected override void ConfigureClient(HttpClient client)
+        {
+            client.DefaultRequestHeaders.Add("X-User-Id", TestUserId);
+            base.ConfigureClient(client);
+        }
+    }
+
+    public class TestUserContext : IUserContext
+    {
+        public string? UserId => CustomWebApplicationFactory.TestUserId;
+        public bool HasUser => true;
     }
 }

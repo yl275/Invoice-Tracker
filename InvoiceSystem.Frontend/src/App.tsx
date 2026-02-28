@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { SignedIn, SignedOut, SignIn, SignUp } from "@clerk/clerk-react";
 import { MainLayout } from "./layouts/MainLayout";
 import InvoicesPage from "./pages/invoices/page";
 import CreateInvoicePage from "./pages/invoices/create/page";
@@ -9,12 +10,22 @@ import EditClientPage from "./pages/clients/edit/page";
 import ProductsPage from "./pages/products/page";
 import CreateProductPage from "./pages/products/create/page";
 import EditProductPage from "./pages/products/edit/page";
+import { AuthSetup } from "./components/AuthSetup";
+
+const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 function App() {
   return (
     <BrowserRouter>
+      {publishableKey && <AuthSetup />}
       <Routes>
-        <Route path="/" element={<MainLayout />}>
+        {publishableKey && (
+          <>
+            <Route path="/sign-in/*" element={<SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />} />
+            <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />} />
+          </>
+        )}
+        <Route path="/" element={publishableKey ? <RequireAuth><MainLayout /></RequireAuth> : <MainLayout />}>
           <Route index element={<Navigate to="/invoices" replace />} />
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="invoices/create" element={<CreateInvoicePage />} />
@@ -29,6 +40,17 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+  );
+}
+
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <SignedIn>{children}</SignedIn>
+      <SignedOut>
+        <Navigate to="/sign-in" replace />
+      </SignedOut>
+    </>
   );
 }
 

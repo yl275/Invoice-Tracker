@@ -1,9 +1,11 @@
 using FluentAssertions;
 using InvoiceSystem.Application.DTOs.Invoice;
+using InvoiceSystem.Application.Interfaces;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Services;
 using Moq;
 using InvoiceSystem.Domain.Entities;
+using InvoiceSystem.UnitTests;
 
 namespace InvoiceSystem.UnitTests.Services
 {
@@ -12,6 +14,7 @@ namespace InvoiceSystem.UnitTests.Services
         private readonly Mock<IInvoiceRepository> _invoiceRepositoryMock;
         private readonly Mock<IClientRepository> _clientRepositoryMock;
         private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly Mock<IUserContext> _userContextMock;
         private readonly InvoiceService _invoiceService;
 
         public InvoiceServiceTests()
@@ -19,11 +22,15 @@ namespace InvoiceSystem.UnitTests.Services
             _invoiceRepositoryMock = new Mock<IInvoiceRepository>();
             _clientRepositoryMock = new Mock<IClientRepository>();
             _productRepositoryMock = new Mock<IProductRepository>();
+            _userContextMock = new Mock<IUserContext>();
+            _userContextMock.Setup(x => x.UserId).Returns(TestData.UserId);
+            _userContextMock.Setup(x => x.HasUser).Returns(true);
 
             _invoiceService = new InvoiceService(
                 _invoiceRepositoryMock.Object,
                 _clientRepositoryMock.Object,
-                _productRepositoryMock.Object
+                _productRepositoryMock.Object,
+                _userContextMock.Object
             );
         }
 
@@ -49,8 +56,8 @@ namespace InvoiceSystem.UnitTests.Services
             // Arrange
             var clientId = Guid.NewGuid();
             var productId = Guid.NewGuid();
-            var client = new Client("ABN", "Test", "PH");
-            var product = new Product("Widget", "SKU", 10m); // Price 10
+            var client = new Client(TestData.UserId, "ABN", "Test", "PH");
+            var product = new Product(TestData.UserId, "Widget", "SKU", 10m);
 
             // We need to set IDs to match (impossible with private set in tests without reflection or helper, but for flow it's ok)
             // Ideally we mock the return to ensure the service logic uses the object we give it.
@@ -86,7 +93,7 @@ namespace InvoiceSystem.UnitTests.Services
             // Arrange
             var clientId = Guid.NewGuid();
             var productId = Guid.NewGuid();
-            var client = new Client("ABN", "Test", "PH");
+            var client = new Client(TestData.UserId, "ABN", "Test", "PH");
 
             var createDto = new CreateInvoiceDto
             {
@@ -115,7 +122,7 @@ namespace InvoiceSystem.UnitTests.Services
             // Arrange
             var clientId = Guid.NewGuid();
             var productId = Guid.NewGuid();
-            var client = new Client("ABN", "Test", "PH");
+            var client = new Client(TestData.UserId, "ABN", "Test", "PH");
 
             var createDto = new CreateInvoiceDto
             {
@@ -142,7 +149,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var clientId = Guid.NewGuid();
-            var client = new Client("ABN", "Test", "PH");
+            var client = new Client(TestData.UserId, "ABN", "Test", "PH");
 
             var createDto = new CreateInvoiceDto
             {
@@ -169,9 +176,9 @@ namespace InvoiceSystem.UnitTests.Services
             var p1Id = Guid.NewGuid();
             var p2Id = Guid.NewGuid();
 
-            var client = new Client("ABN", "Test", "PH");
-            var p1 = new Product("P1", "SKU1", 10m);
-            var p2 = new Product("P2", "SKU2", 50m);
+            var client = new Client(TestData.UserId, "ABN", "Test", "PH");
+            var p1 = new Product(TestData.UserId, "P1", "SKU1", 10m);
+            var p2 = new Product(TestData.UserId, "P2", "SKU2", 50m);
 
             var createDto = new CreateInvoiceDto
             {
@@ -219,10 +226,9 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var invoiceId = Guid.NewGuid();
-            var client = new Client("ABN", "Client", "PH");
-            var invoice = new Invoice("INV-001", DateTime.Now, client);
-            // Add an item manually to test mapping if public/internal method available, or constructor
-            var product = new Product("P1", "S1", 10m);
+            var client = new Client(TestData.UserId, "ABN", "Client", "PH");
+            var invoice = new Invoice(TestData.UserId, "INV-001", DateTime.Now, client);
+            var product = new Product(TestData.UserId, "P1", "S1", 10m);
             invoice.AddItem(product, 2);
 
             _invoiceRepositoryMock.Setup(x => x.GetByIdAsync(invoiceId)).ReturnsAsync(invoice);
@@ -255,11 +261,11 @@ namespace InvoiceSystem.UnitTests.Services
         public async Task GetAllInvoicesAsync_ShouldReturnAllInvoices()
         {
             // Arrange
-            var client = new Client("ABN", "Client", "PH");
+            var client = new Client(TestData.UserId, "ABN", "Client", "PH");
             var invoices = new List<Invoice>
             {
-                new Invoice("INV-1", DateTime.Now, client),
-                new Invoice("INV-2", DateTime.Now, client)
+                new Invoice(TestData.UserId, "INV-1", DateTime.Now, client),
+                new Invoice(TestData.UserId, "INV-2", DateTime.Now, client)
             };
 
             _invoiceRepositoryMock.Setup(x => x.ListAsync()).ReturnsAsync(invoices);
