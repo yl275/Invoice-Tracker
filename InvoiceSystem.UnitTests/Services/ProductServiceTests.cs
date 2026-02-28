@@ -3,7 +3,7 @@ using InvoiceSystem.Application.DTOs.Product;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Services;
 using Moq;
-using Catamac.Domain.Entities;
+using InvoiceSystem.Domain.Entities;
 
 namespace InvoiceSystem.UnitTests.Services
 {

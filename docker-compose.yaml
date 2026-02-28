@@ -3,11 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: catamac_api
+    container_name: invoicesystem_api
     ports:
       - "5207:8080"
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=CatamacInvoices;Username=admin;Password=password123
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=InvoiceSystem;Username=admin;Password=password123
       - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - db
@@ -15,11 +15,11 @@ services:
 
   db:
     image: postgres:15
-    container_name: catamac_db
+    container_name: invoicesystem_db
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password123
-      POSTGRES_DB: CatamacInvoices
+      POSTGRES_DB: InvoiceSystem
     ports:
       - "5432:5432"
     restart: always
