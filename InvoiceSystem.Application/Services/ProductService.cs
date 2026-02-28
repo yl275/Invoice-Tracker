@@ -1,4 +1,4 @@
-using Catamac.Domain.Entities;
+using InvoiceSystem.Domain.Entities;
 using InvoiceSystem.Application.DTOs.Product;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Interfaces.Services;

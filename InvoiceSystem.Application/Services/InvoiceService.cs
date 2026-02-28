@@ -1,4 +1,4 @@
-using Catamac.Domain.Entities;
+using InvoiceSystem.Domain.Entities;
 using InvoiceSystem.Application.DTOs.Invoice;
 using InvoiceSystem.Application.DTOs.Client;
 using InvoiceSystem.Application.DTOs.Product;

@@ -1,4 +1,4 @@
-namespace Catamac.Domain.Entities;
+namespace InvoiceSystem.Domain.Entities;
 
 public class Invoice
 {

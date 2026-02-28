@@ -1,4 +1,4 @@
-using Catamac.Domain.Entities;
+using InvoiceSystem.Domain.Entities;
 
 namespace InvoiceSystem.Application.Interfaces.Repositories
 {

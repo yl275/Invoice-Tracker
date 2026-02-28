@@ -1,4 +1,4 @@
-using Catamac.Domain.Entities;
+using InvoiceSystem.Domain.Entities;
 using InvoiceSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
