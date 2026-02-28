@@ -99,7 +99,7 @@ namespace InvoiceSystem.IntegrationTests
             // Arrange
             var client = await CreateClientAsync("GetInv Client");
             var product = await CreateProductAsync("GetInv Product", 20m);
-            
+
             var createInvoiceDto = new CreateInvoiceDto
             {
                 ClientId = client.Id,
@@ -133,7 +133,7 @@ namespace InvoiceSystem.IntegrationTests
         [Fact]
         public async Task GetAllInvoices_ShouldReturnList()
         {
-             // Arrange
+            // Arrange
             var client = await CreateClientAsync("ListInv Client");
             var product = await CreateProductAsync("ListInv Product", 10m);
             // Create 2 invoices
@@ -153,7 +153,7 @@ namespace InvoiceSystem.IntegrationTests
         [Fact]
         public async Task InvoiceTotal_ShouldBeCorrect_WhenMultipleItems()
         {
-             // Arrange
+            // Arrange
             var client = await CreateClientAsync("TotalInv Client");
             var p1 = await CreateProductAsync("P1", 100m);
             var p2 = await CreateProductAsync("P2", 25.50m);

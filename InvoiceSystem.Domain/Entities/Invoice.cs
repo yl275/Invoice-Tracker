@@ -1,4 +1,4 @@
-namespace InvoiceSystem.Domain.Entities;
+namespace Catamac.Domain.Entities;
 
 public class Invoice
 {
@@ -12,14 +12,21 @@ public class Invoice
     // As client details may change
     public string ClientAbnSnapshot { get; private set; }
     public string ClientNameSnapshot { get; private set; }
-    public string ClientPhoneSnapshot { get; private set; } 
+    public string ClientPhoneSnapshot { get; private set; }
 
     private readonly List<InvoiceItem> _items = new();
     public IReadOnlyCollection<InvoiceItem> Items => _items.AsReadOnly();
 
     public decimal TotalAmount => _items.Sum(i => i.Total); // Can exapand with taxes, discounts, etc.
 
-    protected Invoice() { }
+    protected Invoice()
+    {
+        InvoiceCode = null!;
+        Client = null!;
+        ClientAbnSnapshot = null!;
+        ClientNameSnapshot = null!;
+        ClientPhoneSnapshot = null!;
+    }
 
     public Invoice(string invoiceCode, DateTime invoiceDate, Client client)
     {
@@ -29,7 +36,7 @@ public class Invoice
         Id = Guid.NewGuid();
         InvoiceCode = invoiceCode;
         InvoiceDate = invoiceDate;
-        
+
         Client = client;
         ClientId = client.Id;
         ClientAbnSnapshot = client.Abn;
@@ -40,8 +47,8 @@ public class Invoice
     public void AddItem(Product product, int quantity)
     {
         // Check if item already exists with same product?    
-        var existingItem = _items.FirstOrDefault(i => i.ProductId == product.Id && i.Price == product.Price); 
-        
+        var existingItem = _items.FirstOrDefault(i => i.ProductId == product.Id && i.Price == product.Price);
+
         var item = new InvoiceItem(this.Id, product, quantity);
         _items.Add(item);
     }

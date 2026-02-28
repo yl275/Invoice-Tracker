@@ -3,7 +3,7 @@ using InvoiceSystem.Application.DTOs.Product;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Services;
 using Moq;
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 
 namespace InvoiceSystem.UnitTests.Services
 {
@@ -38,7 +38,7 @@ namespace InvoiceSystem.UnitTests.Services
             result.SKU.Should().Be(createDto.SKU);
             result.Price.Should().Be(createDto.Price);
 
-            _productRepositoryMock.Verify(x => x.AddAsync(It.Is<Product>(p => 
+            _productRepositoryMock.Verify(x => x.AddAsync(It.Is<Product>(p =>
                 p.Name == createDto.Name && p.Price == createDto.Price)), Times.Once);
         }
         [Fact]
@@ -114,11 +114,11 @@ namespace InvoiceSystem.UnitTests.Services
             // Arrange
             var productId = Guid.NewGuid();
             var product = new Product("Old Name", "Old SKU", 5m);
-            var updateDto = new UpdateProductDto 
-            { 
-                Name = "New Name", 
-                SKU = "New SKU", 
-                Price = 15m 
+            var updateDto = new UpdateProductDto
+            {
+                Name = "New Name",
+                SKU = "New SKU",
+                Price = 15m
             };
 
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
@@ -136,7 +136,7 @@ namespace InvoiceSystem.UnitTests.Services
         [Fact]
         public async Task UpdateProductAsync_ShouldDoNothing_WhenProductDoesNotExist()
         {
-             // Arrange
+            // Arrange
             var productId = Guid.NewGuid();
             var updateDto = new UpdateProductDto { Name = "N", SKU = "S", Price = 1 };
 

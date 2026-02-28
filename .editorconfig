@@ -1,0 +1,22 @@
+# Top-most EditorConfig file
+root = true
+
+# Don't use tabs for indentation.
+[*]
+indent_style = space
+# (Please don't specify an indent_size here; that has no effect on Visual Studio
+#  projects as per https://github.com/dotnet/roslyn/blob/main/docs/features/editorconfig.md#indent-style)
+
+# Reindent all files with 2 spaces, except for the ones overridden below.
+[*.{js,jsx,ts,tsx,json,yml,yaml,html,css,scss,md}]
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# C# files
+[*.cs]
+indent_size = 4
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true

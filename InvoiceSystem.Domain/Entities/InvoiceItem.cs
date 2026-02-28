@@ -1,4 +1,4 @@
-namespace InvoiceSystem.Domain.Entities;
+namespace Catamac.Domain.Entities;
 
 public class InvoiceItem
 {
@@ -9,10 +9,14 @@ public class InvoiceItem
     public string SKU { get; private set; }
     public int Quantity { get; private set; }
     public decimal Price { get; private set; }
-    
+
     public decimal Total { get; private set; }
 
-    protected InvoiceItem() { }
+    protected InvoiceItem()
+    {
+        ProductName = null!;
+        SKU = null!;
+    }
 
     public InvoiceItem(Guid invoiceId, Product product, int quantity)
     {

@@ -1,4 +1,4 @@
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 using InvoiceSystem.Application.DTOs.Product;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Interfaces.Services;
@@ -14,7 +14,7 @@ namespace InvoiceSystem.Application.Services
             _productRepository = productRepository;
         }
 
-        public async Task<ProductDto> GetByIdAsync(Guid id)
+        public async Task<ProductDto?> GetByIdAsync(Guid id)
         {
             var product = await _productRepository.GetByIdAsync(id);
             if (product == null) return null;
@@ -47,7 +47,7 @@ namespace InvoiceSystem.Application.Services
 
             var product = new Product(createProductDto.Name, createProductDto.SKU, createProductDto.Price);
             await _productRepository.AddAsync(product);
-            
+
             return new ProductDto
             {
                 Id = product.Id,

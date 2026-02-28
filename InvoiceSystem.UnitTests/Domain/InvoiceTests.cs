@@ -1,5 +1,5 @@
 using FluentAssertions;
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 
 namespace InvoiceSystem.UnitTests.Domain
 {
@@ -106,7 +106,7 @@ namespace InvoiceSystem.UnitTests.Domain
         [Fact]
         public void TotalAmount_ShouldHandleHighPrecision()
         {
-             // Arrange
+            // Arrange
             var client = new Client("ABN", "Name", "Phone");
             var invoice = new Invoice("INV-Precise", DateTime.Now, client);
             var p1 = new Product("Precise Widget", "SKU-P", 10.1234m);

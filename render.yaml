@@ -1,4 +1,4 @@
-# Render Blueprint: InvoiceSystem API + PostgreSQL
+# Render Blueprint: InvoiceSystem API + PostgreSQL + Frontend (Static Site)
 # https://render.com/docs/blueprint-spec
 
 databases:
@@ -7,6 +7,7 @@ databases:
     databaseName: invoicesystem
 
 services:
+  # Backend API (Docker)
   - type: web
     runtime: docker
     name: invoicesystem-api
@@ -23,3 +24,18 @@ services:
         fromDatabase:
           name: invoicesystem-db
           property: connectionString
+
+  # Frontend (Static Site) – build uses API host for VITE_API_HOST
+  - type: web
+    runtime: static
+    name: invoicesystem-frontend
+    plan: free
+    rootDir: InvoiceSystem.Frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_HOST
+        fromService:
+          type: web
+          name: invoicesystem-api
+          property: host

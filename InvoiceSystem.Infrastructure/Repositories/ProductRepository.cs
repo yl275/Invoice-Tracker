@@ -1,4 +1,4 @@
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +14,7 @@ namespace InvoiceSystem.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Product> GetByIdAsync(Guid id)
+        public async Task<Product?> GetByIdAsync(Guid id)
         {
             return await _context.Products.FindAsync(id);
         }

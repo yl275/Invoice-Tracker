@@ -1,4 +1,4 @@
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace InvoiceSystem.Infrastructure.Data
@@ -17,7 +17,7 @@ namespace InvoiceSystem.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             // Configure Client
             modelBuilder.Entity<Client>(entity =>
             {
@@ -43,7 +43,7 @@ namespace InvoiceSystem.Infrastructure.Data
                 entity.HasMany(e => e.Items)
                       .WithOne()
                       .HasForeignKey(e => e.InvoiceId);
-                
+
                 // PostgreSQL 'timestamp without time zone'
                 entity.Property(e => e.InvoiceDate).HasColumnType("timestamp without time zone");
             });

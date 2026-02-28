@@ -3,7 +3,7 @@ using InvoiceSystem.Application.DTOs.Client;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Services;
 using Moq;
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 
 namespace InvoiceSystem.UnitTests.Services
 {
@@ -39,8 +39,8 @@ namespace InvoiceSystem.UnitTests.Services
             result.PhoneNumber.Should().Be(createDto.PhoneNumber);
             result.Id.Should().NotBeEmpty();
 
-            _clientRepositoryMock.Verify(x => x.AddAsync(It.Is<Client>(c => 
-                c.Abn == createDto.Abn && 
+            _clientRepositoryMock.Verify(x => x.AddAsync(It.Is<Client>(c =>
+                c.Abn == createDto.Abn &&
                 c.Name == createDto.Name)), Times.Once);
         }
 
@@ -56,7 +56,7 @@ namespace InvoiceSystem.UnitTests.Services
             // For this test, we might just match properties.
             // *Wait, Client entity has Id generated in constructor usually or base class.*
             // Let's assume Entity has Id.
-            
+
             // Mocking the repo
             _clientRepositoryMock.Setup(x => x.GetByIdAsync(clientId))
                 .ReturnsAsync(client);
@@ -69,7 +69,7 @@ namespace InvoiceSystem.UnitTests.Services
             result.Name.Should().Be("Test Client");
             _clientRepositoryMock.Verify(x => x.GetByIdAsync(clientId), Times.Once);
         }
-        
+
         [Fact]
         public async Task GetByIdAsync_ShouldReturnNull_WhenClientDoesNotExist()
         {

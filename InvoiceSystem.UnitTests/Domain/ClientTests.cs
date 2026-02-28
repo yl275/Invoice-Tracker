@@ -1,5 +1,5 @@
 using FluentAssertions;
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 
 namespace InvoiceSystem.UnitTests.Domain
 {

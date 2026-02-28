@@ -1,4 +1,4 @@
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +14,7 @@ namespace InvoiceSystem.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Invoice> GetByIdAsync(Guid id)
+        public async Task<Invoice?> GetByIdAsync(Guid id)
         {
             return await _context.Invoices
                 .Include(i => i.Items) // Eager load items

@@ -19,6 +19,7 @@ This project is built using a modern .NET technology stack, following Clean Arch
 - **API Documentation**: Scalar / OpenAPI (Swagger)
 - **Unit Testing**: xUnit, Moq, FluentAssertions
 - **Integration Testing**: Microsoft.AspNetCore.Mvc.Testing (InMemory Database)
+- **Web UI**: React 19, Vite 7, Tailwind CSS, React Router (in `InvoiceSystem.Frontend/`)
 
 ## 🚀 How to Run
 
@@ -37,7 +38,8 @@ This project is built using a modern .NET technology stack, following Clean Arch
 4. Run `./start.sh`.
 
 3. Wait for the containers to start.
-4. Access API Documentation at: `http://localhost:5207/scalar/v1`
+4. **Web UI**: open `http://localhost` in your browser.
+5. **API docs**: `http://localhost:5207/scalar/v1`
 
 ### Manual Run (Development)
 1. Clone the repository:
@@ -60,6 +62,18 @@ This project is built using a modern .NET technology stack, following Clean Arch
 4. Access API Documentation:
    Once started, you can typically access the interactive API documentation at `http://localhost:5207/scalar/v1` (depending on your specific `launchSettings.json` configuration).
 
+### Run Frontend (with API)
+
+To use the web UI against the running API:
+
+1. Start the API (Docker as above, or `cd InvoiceSystem.API && dotnet run`).
+2. From the repo root, run the frontend:
+   - **Windows**: double-click `run-frontend.bat` or run `cd InvoiceSystem.Frontend && npm install && npm run dev`.
+   - **Mac/Linux**: `cd InvoiceSystem.Frontend && npm install && npm run dev`.
+3. Open `http://localhost:5173` (Vite dev server; it proxies `/api` to the API).
+
+**Prerequisites for frontend**: [Node.js](https://nodejs.org/) 20+ and npm.
+
 ## ☁️ Deploy to Render
 
 [Render](https://render.com) supports Docker + PostgreSQL. Two options:
@@ -70,7 +84,9 @@ This project is built using a modern .NET technology stack, following Clean Arch
 2. Open [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint**.
 3. Connect the repo; Render will detect `render.yaml` at the root.
 4. Click **Deploy Blueprint**.
-5. After deploy, the API is at `https://<your-service-name>.onrender.com`. Use `/health` for health checks and `/scalar/v1` for API docs (if enabled).
+5. After deploy:
+   - **API**: `https://invoicesystem-api-xxxx.onrender.com` (use `/health` for health checks).
+   - **Web UI**: `https://invoicesystem-frontend-xxxx.onrender.com` (static site; it calls the API automatically).
 
 ### Option B: Manual setup
 
@@ -108,15 +124,18 @@ Start the project, and go to http://localhost:5207/scalar/v1
 
 ## 📂 Directory Structure
 
-This project follows the **Clean Architecture** layering:
+Backend follows **Clean Architecture**; frontend is a React + Vite SPA.
 
 ```
 InvoiceSystem/
-├── InvoiceSystem.API/              # [Web API Layer] - Entry point, contains Controllers and Program.cs
-├── InvoiceSystem.Application/      # [Application Layer] - Core business logic, Service implementations, DTOs, and Interfaces
-├── InvoiceSystem.Domain/           # [Domain Layer] - Core Entities and business rules, no dependencies
-├── InvoiceSystem.Infrastructure/   # [Infrastructure Layer] - DbContext, Repository implementations
-├── InvoiceSystem.UnitTests/        # [Unit Tests] - Tests for Service and Domain logic
-├── InvoiceSystem.IntegrationTests/ # [Integration Tests] - End-to-end tests for API endpoints
-└── InvoiceSystem.slnx              # Solution file
+├── InvoiceSystem.API/              # [Web API] - Controllers, Program.cs
+├── InvoiceSystem.Application/      # [Application] - Services, DTOs, interfaces
+├── InvoiceSystem.Domain/          # [Domain] - Entities and business rules
+├── InvoiceSystem.Infrastructure/   # [Infrastructure] - DbContext, repositories
+├── InvoiceSystem.Frontend/         # [Web UI] - React + Vite + Tailwind, calls /api
+├── InvoiceSystem.UnitTests/
+├── InvoiceSystem.IntegrationTests/
+├── docker-compose.yaml             # API + Frontend (nginx) + PostgreSQL
+├── render.yaml                     # Render Blueprint (API + DB only)
+└── InvoiceSystem.slnx
 ```

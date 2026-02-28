@@ -1,4 +1,4 @@
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 using InvoiceSystem.Application.DTOs.Invoice;
 using InvoiceSystem.Application.DTOs.Client;
 using InvoiceSystem.Application.DTOs.Product;
@@ -43,7 +43,7 @@ namespace InvoiceSystem.Application.Services
             }
 
             await _invoiceRepository.AddAsync(invoice);
-            
+
             // Return updated DTO 
             return new InvoiceDto
             {
@@ -52,8 +52,9 @@ namespace InvoiceSystem.Application.Services
                 InvoiceDate = invoice.InvoiceDate,
                 ClientId = invoice.ClientId,
                 ClientName = invoice.ClientNameSnapshot,
+                ClientAbn = invoice.ClientAbnSnapshot,
                 TotalAmount = invoice.TotalAmount,
-                Items = invoice.Items.Select(i => new InvoiceItemDto 
+                Items = invoice.Items.Select(i => new InvoiceItemDto
                 {
                     ProductId = i.ProductId,
                     ProductName = i.ProductName,
@@ -65,7 +66,7 @@ namespace InvoiceSystem.Application.Services
             };
         }
 
-        public async Task<InvoiceDto> GetInvoiceAsync(Guid id)
+        public async Task<InvoiceDto?> GetInvoiceAsync(Guid id)
         {
             var invoice = await _invoiceRepository.GetByIdAsync(id);
             if (invoice == null) return null;
@@ -77,6 +78,7 @@ namespace InvoiceSystem.Application.Services
                 InvoiceDate = invoice.InvoiceDate,
                 ClientId = invoice.ClientId,
                 ClientName = invoice.ClientNameSnapshot,
+                ClientAbn = invoice.ClientAbnSnapshot,
                 TotalAmount = invoice.TotalAmount,
                 Items = invoice.Items.Select(i => new InvoiceItemDto
                 {
@@ -93,7 +95,7 @@ namespace InvoiceSystem.Application.Services
         public async Task<IEnumerable<InvoiceDto>> GetAllInvoicesAsync()
         {
             var invoices = await _invoiceRepository.ListAsync();
-            
+
             // Note: ListAsync might not include Items/Client depending on Repo implementation
             // For now, mapping basic properties
             return invoices.Select(i => new InvoiceDto
@@ -103,6 +105,7 @@ namespace InvoiceSystem.Application.Services
                 InvoiceDate = i.InvoiceDate,
                 ClientId = i.ClientId,
                 ClientName = i.ClientNameSnapshot,
+                ClientAbn = i.ClientAbnSnapshot,
                 TotalAmount = i.TotalAmount
             });
         }

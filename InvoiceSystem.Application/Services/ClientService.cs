@@ -1,4 +1,4 @@
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 using InvoiceSystem.Application.DTOs.Client;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Interfaces.Services;
@@ -14,7 +14,7 @@ namespace InvoiceSystem.Application.Services
             _clientRepository = clientRepository;
         }
 
-        public async Task<ClientDto> GetByIdAsync(Guid id)
+        public async Task<ClientDto?> GetByIdAsync(Guid id)
         {
             var client = await _clientRepository.GetByIdAsync(id);
             if (client == null) return null;
@@ -44,7 +44,7 @@ namespace InvoiceSystem.Application.Services
         {
             var client = new Client(createClientDto.Abn, createClientDto.Name, createClientDto.PhoneNumber);
             await _clientRepository.AddAsync(client);
-            
+
             return new ClientDto
             {
                 Id = client.Id,

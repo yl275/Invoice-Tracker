@@ -3,7 +3,7 @@ using InvoiceSystem.Application.DTOs.Invoice;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Application.Services;
 using Moq;
-using InvoiceSystem.Domain.Entities;
+using Catamac.Domain.Entities;
 
 namespace InvoiceSystem.UnitTests.Services
 {
@@ -31,8 +31,8 @@ namespace InvoiceSystem.UnitTests.Services
         public async Task CreateInvoiceAsync_ShouldThrowException_WhenClientNotFound()
         {
             // Arrange
-            var createDto = new CreateInvoiceDto { ClientId = Guid.NewGuid() };
-            
+            var createDto = new CreateInvoiceDto { ClientId = Guid.NewGuid(), InvoiceCode = "TEST-INV" };
+
             _clientRepositoryMock.Setup(x => x.GetByIdAsync(createDto.ClientId))
                 .ReturnsAsync((Client)null!);
 
@@ -76,7 +76,7 @@ namespace InvoiceSystem.UnitTests.Services
             result.Should().NotBeNull();
             result.Items.Should().HaveCount(1);
             result.Items.First().Total.Should().Be(20m); // 2 * 10
-            
+
         }
 
         [Fact]
@@ -168,7 +168,7 @@ namespace InvoiceSystem.UnitTests.Services
             var clientId = Guid.NewGuid();
             var p1Id = Guid.NewGuid();
             var p2Id = Guid.NewGuid();
-            
+
             var client = new Client("ABN", "Test", "PH");
             var p1 = new Product("P1", "SKU1", 10m);
             var p2 = new Product("P2", "SKU2", 50m);
@@ -200,9 +200,9 @@ namespace InvoiceSystem.UnitTests.Services
         [Fact]
         public async Task CreateInvoiceAsync_ShouldBubbleUpRepositoryException()
         {
-             // Arrange
+            // Arrange
             var clientId = Guid.NewGuid();
-            var createDto = new CreateInvoiceDto { ClientId = clientId };
+            var createDto = new CreateInvoiceDto { ClientId = clientId, InvoiceCode = "TEST-INV" };
 
             _clientRepositoryMock.Setup(x => x.GetByIdAsync(clientId)).ThrowsAsync(new InvalidOperationException("DB Error"));
 
@@ -223,7 +223,7 @@ namespace InvoiceSystem.UnitTests.Services
             var invoice = new Invoice("INV-001", DateTime.Now, client);
             // Add an item manually to test mapping if public/internal method available, or constructor
             var product = new Product("P1", "S1", 10m);
-            invoice.AddItem(product, 2); 
+            invoice.AddItem(product, 2);
 
             _invoiceRepositoryMock.Setup(x => x.GetByIdAsync(invoiceId)).ReturnsAsync(invoice);
 
@@ -240,7 +240,7 @@ namespace InvoiceSystem.UnitTests.Services
         [Fact]
         public async Task GetInvoiceAsync_ShouldReturnNull_WhenInvoiceDoesNotExist()
         {
-             // Arrange
+            // Arrange
             var invoiceId = Guid.NewGuid();
             _invoiceRepositoryMock.Setup(x => x.GetByIdAsync(invoiceId)).ReturnsAsync((Invoice)null!);
 

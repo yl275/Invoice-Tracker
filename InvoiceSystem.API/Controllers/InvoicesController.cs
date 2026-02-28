@@ -44,9 +44,9 @@ namespace InvoiceSystem.API.Controllers
             }
             catch (Exception ex)
             {
-                 // Service throws generic Exception for ClientNotFound/ProductNotFound currently. 
-                 // To satisfy "CreateInvoice_ShouldReturnBadRequest_WhenClientNotFound", we map this to BadRequest too.
-                 return BadRequest(ex.Message);
+                // Service throws generic Exception for ClientNotFound/ProductNotFound currently. 
+                // To satisfy "CreateInvoice_ShouldReturnBadRequest_WhenClientNotFound", we map this to BadRequest too.
+                return BadRequest(ex.Message);
             }
         }
     }

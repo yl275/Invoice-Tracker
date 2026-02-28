@@ -1,4 +1,4 @@
-namespace InvoiceSystem.Domain.Entities;
+namespace Catamac.Domain.Entities;
 
 public class Product
 {
@@ -7,7 +7,11 @@ public class Product
     public string SKU { get; private set; }
     public decimal Price { get; private set; }
 
-    protected Product() { }
+    protected Product()
+    {
+        Name = null!;
+        SKU = null!;
+    }
 
     public Product(string name, string sku, decimal price)
     {
@@ -25,7 +29,7 @@ public class Product
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be empty", nameof(name));
         if (string.IsNullOrWhiteSpace(sku)) throw new ArgumentException("SKU cannot be empty", nameof(sku));
-        
+
         Name = name;
         SKU = sku;
     }
