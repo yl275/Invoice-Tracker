@@ -23,6 +23,15 @@ if (builder.Environment.EnvironmentName != "Testing")
 }
 
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -38,6 +47,7 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Testi
     }
 }
 
+app.UseCors();
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
