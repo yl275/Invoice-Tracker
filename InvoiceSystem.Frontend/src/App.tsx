@@ -21,7 +21,14 @@ function App() {
       <Routes>
         {publishableKey && (
           <>
-            <Route path="/sign-in/*" element={<SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />} />
+            <Route
+              path="/sign-in/*"
+              element={
+                <div className="flex min-h-screen items-center justify-center">
+                  <SignIn />
+                </div>
+              }
+            />
             <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />} />
           </>
         )}

@@ -1,3 +1,4 @@
+@layer theme, base, clerk, components, utilities;
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -117,7 +118,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body,
+  #root {
+    min-height: 100vh;
+    margin: 0;
+  }
   body {
     @apply bg-background text-foreground;
   }
 }
+

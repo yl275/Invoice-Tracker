@@ -15,7 +15,10 @@ if (!publishableKey && import.meta.env.MODE !== "test") {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {publishableKey ? (
-      <ClerkProvider publishableKey={publishableKey}>
+      <ClerkProvider
+        publishableKey={publishableKey}
+        appearance={{ cssLayerName: "clerk" }}
+      >
         <App />
       </ClerkProvider>
     ) : (
