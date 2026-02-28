@@ -1,3 +1,4 @@
+using InvoiceSystem.API;
 using InvoiceSystem.API.Extensions;
 using InvoiceSystem.Application;
 using InvoiceSystem.Infrastructure;
@@ -10,11 +11,11 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 // Register Application and Infrastructure layers
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// Render provides postgresql:// URI; Npgsql expects key=value format.
+var connectionString = ConnectionStringHelper.ConvertPostgresUriToNpgsqlFormat(rawConnectionString);
 
 builder.Services.AddApplication();
 if (builder.Environment.EnvironmentName != "Testing")
