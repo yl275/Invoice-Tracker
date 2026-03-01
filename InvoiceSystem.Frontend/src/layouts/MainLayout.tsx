@@ -28,7 +28,9 @@ export function MainLayout({ className }: SidebarProps) {
     >
       {/* Mobile Header */}
       <header className="md:hidden flex items-center justify-between p-4 border-b bg-background sticky top-0 z-50">
-        <h2 className="text-xl font-bold tracking-tight">InvoiceSys</h2>
+        <Link to="/" className="text-xl font-bold tracking-tight hover:opacity-80">
+          InvoiceSys
+        </Link>
         <div className="flex items-center gap-2">
           {useClerk && <UserButton afterSignOutUrl="/sign-in" />}
           <Button
@@ -77,7 +79,9 @@ export function MainLayout({ className }: SidebarProps) {
       {/* Desktop Sidebar */}
       <aside className="border-r bg-slate-50/40 dark:bg-slate-900/40 hidden md:block">
         <div className="p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">InvoiceSys</h2>
+          <Link to="/" className="text-2xl font-bold tracking-tight hover:opacity-80">
+            InvoiceSys
+          </Link>
           {useClerk && <UserButton afterSignOutUrl="/sign-in" />}
         </div>
         <div className="px-4 py-2">

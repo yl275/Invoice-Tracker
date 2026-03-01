@@ -2,6 +2,7 @@ import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { CalendarDays, Printer, Save, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BentoCard, BentoGrid } from "@/components/ui/bento-grid";
+import TextType from "@/components/TextType";
 
 const useClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const ctaButtonClassName =
@@ -61,8 +62,23 @@ export default function HomePage() {
     <section className="-mx-4 snap-y snap-mandatory md:-mx-6">
       <div className="flex min-h-screen snap-start items-center justify-center bg-gradient-to-br from-slate-950 via-black to-slate-900">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <h1 className="p-4 text-3xl font-bold tracking-tight text-white md:text-4xl">
-            Simple invoicing for growing teams
+          <h1 className="min-h-20 p-4 text-3xl font-bold tracking-tight text-white md:min-h-24 md:text-4xl">
+            <TextType
+              texts={[
+                "Simple invoicing for growing teams",
+                "Automate workflow and save time",
+                "Scale billing with confidence",
+              ]}
+              typingSpeed={30}
+              pauseDuration={1500}
+              showCursor
+              cursorCharacter="_"
+              deletingSpeed={50}
+              variableSpeedEnabled={false}
+              variableSpeedMin={60}
+              variableSpeedMax={120}
+              cursorBlinkDuration={0.5}
+            />
           </h1>
           <p className="max-w-2xl text-slate-300">
             Create invoices, manage clients and products, and keep everything organized in one place.
