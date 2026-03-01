@@ -11,7 +11,7 @@ function navClassName(isActive: boolean): string {
 
 export function PublicLayout() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-6">
@@ -54,9 +54,28 @@ export function PublicLayout() {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-10 md:px-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6">
         <Outlet />
       </main>
+      <footer className="border-t">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between md:px-6">
+          <p>© {new Date().getFullYear()} InvoiceSys</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link to="/support" className="hover:text-foreground">
+              Support
+            </Link>
+            <Link to="/docs" className="hover:text-foreground">
+              Docs
+            </Link>
+            <Link to="/pricing" className="hover:text-foreground">
+              Pricing
+            </Link>
+            <a href="mailto:form-InvoiceSys@yl1.org" className="hover:text-foreground">
+              Contact us
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
