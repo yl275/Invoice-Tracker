@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Product } from "@/types";
 import api from "@/services/api";
-import { columns } from "./columns";
+import { createColumns } from "./columns";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -27,6 +27,20 @@ export default function ProductsPage() {
     fetchData();
   }, []);
 
+  async function handleDelete(productId: string) {
+    const target = data.find((p) => p.id === productId);
+    const label = target?.name ? ` "${target.name}"` : "";
+    const confirmed = window.confirm(`Delete product${label}?`);
+    if (!confirmed) return;
+
+    try {
+      await api.delete(`/products/${productId}`);
+      setData((prev) => prev.filter((item) => item.id !== productId));
+    } catch (error) {
+      console.error("Failed to delete product", error);
+    }
+  }
+
   return (
     <div className="container mx-auto py-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -41,7 +55,7 @@ export default function ProductsPage() {
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={createColumns(handleDelete)} data={data} />
       )}
     </div>
   );

@@ -8,5 +8,6 @@ namespace InvoiceSystem.Application.Interfaces.Services
         Task<ProductDto> AddProductAsync(CreateProductDto createProductDto);
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
         Task UpdateProductAsync(Guid id, UpdateProductDto updateProductDto);
+        Task DeleteProductAsync(Guid id);
     }
 }

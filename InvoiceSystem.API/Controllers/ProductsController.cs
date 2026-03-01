@@ -52,5 +52,12 @@ namespace InvoiceSystem.API.Controllers
             await _productService.UpdateProductAsync(id, updateProductDto);
             return NoContent();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _productService.DeleteProductAsync(id);
+            return NoContent();
+        }
     }
 }

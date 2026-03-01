@@ -88,6 +88,7 @@ else if (!string.IsNullOrEmpty(clerkIssuer))
     app.UseAuthentication();
 }
 
+app.UseMiddleware<SeedUserDataMiddleware>();
 app.UseAuthorization();
 app.UseCors();
 app.MapOpenApi();

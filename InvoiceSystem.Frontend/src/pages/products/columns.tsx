@@ -3,10 +3,11 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Product } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const columns: ColumnDef<Product>[] = [
+export function createColumns(onDelete: (productId: string) => void): ColumnDef<Product>[] {
+  return [
   {
     accessorKey: "name",
     header: "Name",
@@ -33,12 +34,23 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => {
       const product = row.original;
       return (
-        <Button variant="ghost" size="icon" asChild>
-          <Link to={`/products/${product.id}/edit`}>
-            <Pencil className="h-4 w-4" />
-          </Link>
-        </Button>
+        <div className="flex items-center">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to={`/products/${product.id}/edit`}>
+              <Pencil className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onDelete(product.id)}
+            aria-label={`Delete ${product.name}`}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
       );
     },
   },
-];
+  ];
+}

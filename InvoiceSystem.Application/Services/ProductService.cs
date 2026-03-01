@@ -73,5 +73,10 @@ namespace InvoiceSystem.Application.Services
                 await _productRepository.UpdateAsync(product);
             }
         }
+
+        public async Task DeleteProductAsync(Guid id)
+        {
+            await _productRepository.DeleteAsync(id);
+        }
     }
 }

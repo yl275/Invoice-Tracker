@@ -41,6 +41,26 @@ namespace InvoiceSystem.Infrastructure
                 context.SaveChanges();
             }
 
+            if (!context.BusinessProfiles.IgnoreQueryFilters().Any())
+            {
+                var demoProfile = new BusinessProfile(
+                    DemoUserId,
+                    "InvoiceSys Demo",
+                    "form-InvoiceSys@yl1.org",
+                    "0400000000",
+                    "123 Demo Street, Sydney NSW 2000",
+                    "https://invoicesys.local",
+                    "ABN123456789",
+                    "BankTransfer",
+                    "123-456",
+                    "987654321",
+                    null
+                );
+
+                context.BusinessProfiles.Add(demoProfile);
+                context.SaveChanges();
+            }
+
             if (!context.Invoices.IgnoreQueryFilters().Any())
             {
                 var clients = context.Clients.IgnoreQueryFilters().Where(c => c.UserId == DemoUserId).ToList();
