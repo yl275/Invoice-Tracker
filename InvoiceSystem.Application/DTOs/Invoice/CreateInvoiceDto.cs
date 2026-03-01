@@ -4,6 +4,8 @@ namespace InvoiceSystem.Application.DTOs.Invoice
     {
         public required string InvoiceCode { get; set; }
         public DateTime InvoiceDate { get; set; }
+        public DateTime? DueDate { get; set; }
+        public int? DueInDays { get; set; }
         public Guid ClientId { get; set; }
         public List<CreateInvoiceItemDto> Items { get; set; } = new();
     }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { UserButton } from "@clerk/clerk-react";
-import { FileText, Users, Package, Menu, X } from "lucide-react";
+import { FileText, Users, Package, Menu, X, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +17,7 @@ export function MainLayout({ className }: SidebarProps) {
     { name: "Invoices", href: "/invoices", icon: FileText },
     { name: "Clients", href: "/clients", icon: Users },
     { name: "Products", href: "/products", icon: Package },
+    { name: "Profile", href: "/profile", icon: UserRound },
   ];
 
   return (

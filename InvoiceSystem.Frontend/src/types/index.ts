@@ -27,6 +27,7 @@ export interface Invoice {
   id: string;
   invoiceCode: string;
   invoiceDate: string;
+  dueDate: string;
   clientId: string;
   clientName: string;
   clientAbn: string;
@@ -45,6 +46,8 @@ export interface InvoiceItemDto {
 export interface CreateInvoiceRequest {
   invoiceCode: string;
   invoiceDate: string;
+  dueDate?: string;
+  dueInDays?: number;
   clientId: string;
   items: CreateInvoiceItemRequest[];
 }
@@ -66,4 +69,33 @@ export interface CreateProductRequest {
   name: string;
   sku: string;
   price: number;
+}
+
+export type PaymentMethod = "BankTransfer" | "PayId";
+
+export interface BusinessProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  postalLocation: string;
+  website?: string | null;
+  abn: string;
+  paymentMethod: PaymentMethod;
+  bankBsb?: string | null;
+  bankAccountNumber?: string | null;
+  payId?: string | null;
+}
+
+export interface UpsertBusinessProfileRequest {
+  name: string;
+  email: string;
+  phone: string;
+  postalLocation: string;
+  website?: string | null;
+  abn: string;
+  paymentMethod: PaymentMethod;
+  bankBsb?: string | null;
+  bankAccountNumber?: string | null;
+  payId?: string | null;
 }

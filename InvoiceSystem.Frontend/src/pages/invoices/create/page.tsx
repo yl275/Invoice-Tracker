@@ -29,6 +29,14 @@ import type { Client, Product, CreateInvoiceRequest } from "@/types";
 const invoiceFormSchema = z.object({
   invoiceCode: z.string().min(1, "Invoice code is required"),
   invoiceDate: z.string().min(1, "Date is required"),
+  dueDate: z.string().optional(),
+  dueInDays: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || (/^\d+$/.test(value) && Number(value) >= 1),
+      "Due in days must be at least 1",
+    ),
   clientId: z.string().min(1, "Client is required"),
   items: z
     .array(
@@ -53,6 +61,8 @@ export default function CreateInvoicePage() {
     defaultValues: {
       invoiceCode: `INV-${Math.floor(Math.random() * 10000)}`, // Auto-generate simple code
       invoiceDate: new Date().toISOString().split("T")[0],
+      dueDate: "",
+      dueInDays: "30",
       clientId: "",
       items: [{ productId: "", quantity: 1 }],
     },
@@ -85,6 +95,14 @@ export default function CreateInvoicePage() {
       const payload: CreateInvoiceRequest = {
         invoiceCode: data.invoiceCode,
         invoiceDate: new Date(data.invoiceDate).toISOString(),
+        dueDate: data.dueDate
+          ? new Date(data.dueDate).toISOString()
+          : undefined,
+        dueInDays: data.dueDate
+          ? undefined
+          : data.dueInDays
+            ? Number(data.dueInDays)
+            : undefined,
         clientId: data.clientId,
         items: data.items.map((item) => ({
           productId: item.productId,
@@ -139,6 +157,37 @@ export default function CreateInvoicePage() {
                   <FormLabel>Date</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="dueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due Date (optional)</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="dueInDays"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Or Due in Days</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

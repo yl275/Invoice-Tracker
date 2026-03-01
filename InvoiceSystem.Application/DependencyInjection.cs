@@ -8,6 +8,7 @@ namespace InvoiceSystem.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
+            services.AddScoped<IBusinessProfileService, BusinessProfileService>();
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IInvoiceService, InvoiceService>();

@@ -11,6 +11,7 @@ import EditClientPage from "./pages/clients/edit/page";
 import ProductsPage from "./pages/products/page";
 import CreateProductPage from "./pages/products/create/page";
 import EditProductPage from "./pages/products/edit/page";
+import ProfilePage from "./pages/profile/page";
 import HomePage from "./pages/public/home/page";
 import PricingPage from "./pages/public/pricing/page";
 import DocsPage from "./pages/public/docs/page";
@@ -64,6 +65,7 @@ function App() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/create" element={<CreateProductPage />} />
           <Route path="products/:id/edit" element={<EditProductPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>

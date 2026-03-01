@@ -14,6 +14,7 @@ namespace InvoiceSystem.Infrastructure
                 options.UseNpgsql(connectionString));
 
             services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddScoped<IBusinessProfileRepository, BusinessProfileRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 

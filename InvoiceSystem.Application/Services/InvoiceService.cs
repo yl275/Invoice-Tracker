@@ -31,7 +31,16 @@ namespace InvoiceSystem.Application.Services
             var client = await _clientRepository.GetByIdAsync(createInvoiceDto.ClientId);
             if (client == null) throw new Exception("Client not found");
 
-            var invoice = new Invoice(_userContext.UserId!, createInvoiceDto.InvoiceCode, createInvoiceDto.InvoiceDate, client);
+            var dueDate = createInvoiceDto.DueDate
+                ?? createInvoiceDto.InvoiceDate.AddDays(createInvoiceDto.DueInDays ?? 30);
+
+            var invoice = new Invoice(
+                _userContext.UserId!,
+                createInvoiceDto.InvoiceCode,
+                createInvoiceDto.InvoiceDate,
+                client,
+                dueDate
+            );
 
             if (createInvoiceDto.Items == null || !createInvoiceDto.Items.Any())
                 throw new ArgumentException("Invoice must contain at least one item.");
@@ -56,6 +65,7 @@ namespace InvoiceSystem.Application.Services
                 Id = invoice.Id,
                 InvoiceCode = invoice.InvoiceCode,
                 InvoiceDate = invoice.InvoiceDate,
+                DueDate = invoice.DueDate,
                 ClientId = invoice.ClientId,
                 ClientName = invoice.ClientNameSnapshot,
                 ClientAbn = invoice.ClientAbnSnapshot,
@@ -82,6 +92,7 @@ namespace InvoiceSystem.Application.Services
                 Id = invoice.Id,
                 InvoiceCode = invoice.InvoiceCode,
                 InvoiceDate = invoice.InvoiceDate,
+                DueDate = invoice.DueDate,
                 ClientId = invoice.ClientId,
                 ClientName = invoice.ClientNameSnapshot,
                 ClientAbn = invoice.ClientAbnSnapshot,
@@ -109,6 +120,7 @@ namespace InvoiceSystem.Application.Services
                 Id = i.Id,
                 InvoiceCode = i.InvoiceCode,
                 InvoiceDate = i.InvoiceDate,
+                DueDate = i.DueDate,
                 ClientId = i.ClientId,
                 ClientName = i.ClientNameSnapshot,
                 ClientAbn = i.ClientAbnSnapshot,

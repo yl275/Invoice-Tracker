@@ -6,6 +6,7 @@ public class Invoice
     public string UserId { get; private set; } = null!;
     public string InvoiceCode { get; private set; }
     public DateTime InvoiceDate { get; private set; }
+    public DateTime DueDate { get; private set; }
 
     public Guid ClientId { get; private set; }
     public Client Client { get; private set; }
@@ -29,16 +30,19 @@ public class Invoice
         ClientPhoneSnapshot = null!;
     }
 
-    public Invoice(string userId, string invoiceCode, DateTime invoiceDate, Client client)
+    public Invoice(string userId, string invoiceCode, DateTime invoiceDate, Client client, DateTime? dueDate = null)
     {
         if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentException("User ID cannot be empty", nameof(userId));
         if (string.IsNullOrWhiteSpace(invoiceCode)) throw new ArgumentException("Invoice Code cannot be empty", nameof(invoiceCode));
         if (client == null) throw new ArgumentNullException(nameof(client));
+        var resolvedDueDate = dueDate ?? invoiceDate.Date.AddDays(30);
+        if (resolvedDueDate < invoiceDate.Date) throw new ArgumentException("Due date cannot be earlier than invoice date", nameof(dueDate));
 
         Id = Guid.NewGuid();
         UserId = userId;
         InvoiceCode = invoiceCode;
         InvoiceDate = invoiceDate;
+        DueDate = resolvedDueDate;
 
         Client = client;
         ClientId = client.Id;

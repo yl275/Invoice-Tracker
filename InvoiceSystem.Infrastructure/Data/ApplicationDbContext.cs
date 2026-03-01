@@ -18,6 +18,7 @@ namespace InvoiceSystem.Infrastructure.Data
         }
 
         public DbSet<Client> Clients { get; set; }
+        public DbSet<BusinessProfile> BusinessProfiles { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
@@ -36,6 +37,23 @@ namespace InvoiceSystem.Infrastructure.Data
                 entity.HasMany(e => e.Invoices)
                       .WithOne(e => e.Client)
                       .HasForeignKey(e => e.ClientId);
+
+                if (_userContext != null)
+                    entity.HasQueryFilter(e => e.UserId == _userContext.UserId);
+            });
+
+            // Configure Product
+            modelBuilder.Entity<BusinessProfile>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.Email).IsRequired();
+                entity.Property(e => e.Phone).IsRequired();
+                entity.Property(e => e.PostalLocation).IsRequired();
+                entity.Property(e => e.Abn).IsRequired();
+                entity.Property(e => e.PaymentMethod).IsRequired();
+                entity.HasIndex(e => e.UserId).IsUnique();
 
                 if (_userContext != null)
                     entity.HasQueryFilter(e => e.UserId == _userContext.UserId);
@@ -62,6 +80,7 @@ namespace InvoiceSystem.Infrastructure.Data
                       .HasForeignKey(e => e.InvoiceId);
 
                 entity.Property(e => e.InvoiceDate).HasColumnType("timestamp without time zone");
+                entity.Property(e => e.DueDate).HasColumnType("timestamp without time zone");
 
                 if (_userContext != null)
                     entity.HasQueryFilter(e => e.UserId == _userContext.UserId);

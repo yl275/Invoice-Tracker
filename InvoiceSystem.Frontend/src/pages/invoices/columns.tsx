@@ -50,6 +50,14 @@ export const columns: ColumnDef<Invoice>[] = [
     },
   },
   {
+    accessorKey: "dueDate",
+    header: "Due",
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("dueDate"));
+      return <div>{date.toLocaleDateString()}</div>;
+    },
+  },
+  {
     accessorKey: "clientName",
     header: ({ column }) => {
       return (

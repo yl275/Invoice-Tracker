@@ -56,7 +56,8 @@ export default function InvoiceDetailPage() {
               Invoice {invoice.invoiceCode}
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Issued on {new Date(invoice.invoiceDate).toLocaleDateString()}
+              Issued on {new Date(invoice.invoiceDate).toLocaleDateString()} • Due{" "}
+              {new Date(invoice.dueDate).toLocaleDateString()}
             </p>
           </div>
         </div>
