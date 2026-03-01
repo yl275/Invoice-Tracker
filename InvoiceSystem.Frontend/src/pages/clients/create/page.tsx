@@ -29,6 +29,8 @@ const clientFormSchema = z.object({
     .string()
     .min(1, "Phone number is required")
     .regex(/^[\d\s\-+()]{8,20}$/, "Phone number format is invalid"),
+  email: z.string().email("Email format is invalid").or(z.literal("")),
+  comment: z.string().max(500, "Comment must be less than 500 characters"),
 });
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
@@ -41,6 +43,8 @@ export default function CreateClientPage() {
       name: "",
       abn: "",
       phoneNumber: "",
+      email: "",
+      comment: "",
     },
   });
 
@@ -108,6 +112,36 @@ export default function CreateClientPage() {
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input placeholder="0400 000 000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="billing@acme.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="comment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Comment</FormLabel>
+                    <FormControl>
+                      <textarea
+                        className="flex min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="Internal note for this client..."
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

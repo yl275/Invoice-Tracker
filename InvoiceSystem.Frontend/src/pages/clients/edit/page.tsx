@@ -17,15 +17,6 @@ import api from "@/services/api";
 import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 
-// Checking recent file list, UseToast is likely not imported or I need to find where it is or if it exists.
-// Wait, I saw "use-toast.ts" in the conversation history which implies it exists.
-// Let me double check if I can import it. The conversation mentioned "use-toast.ts" in src/hooks or components.
-// I will assume it is at "@/hooks/use-toast" or similar. Actually, let's stick to console.log if unsure, but better to check first?
-// No, I'll stick to the pattern in "create" page but add fetch logic. Create page didn't use toast, but I should probably add it for better UX.
-// I'll stick to console error for now to be safe and match "create" page, or standardise.
-// "create" page had: // Ideally show toast here status.
-// I will just implement the basic functionality first.
-
 const clientFormSchema = z.object({
   name: z
     .string()
@@ -39,6 +30,8 @@ const clientFormSchema = z.object({
     .string()
     .min(1, "Phone number is required")
     .regex(/^[\d\s\-+()]{8,20}$/, "Phone number format is invalid"),
+  email: z.string().email("Email format is invalid").or(z.literal("")),
+  comment: z.string().max(500, "Comment must be less than 500 characters"),
 });
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
@@ -52,6 +45,8 @@ export default function EditClientPage() {
       name: "",
       abn: "",
       phoneNumber: "",
+      email: "",
+      comment: "",
     },
   });
 
@@ -60,8 +55,14 @@ export default function EditClientPage() {
       if (!id) return;
       try {
         const response = await api.get(`/clients/${id}`);
-        const { name, abn, phoneNumber } = response.data;
-        form.reset({ name, abn, phoneNumber });
+        const { name, abn, phoneNumber, email, comment } = response.data;
+        form.reset({
+          name,
+          abn,
+          phoneNumber,
+          email: email ?? "",
+          comment: comment ?? "",
+        });
       } catch (error) {
         console.error("Failed to fetch client", error);
       }
@@ -133,6 +134,36 @@ export default function EditClientPage() {
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input placeholder="0400 000 000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="billing@acme.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="comment"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Comment</FormLabel>
+                    <FormControl>
+                      <textarea
+                        className="flex min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="Internal note for this client..."
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

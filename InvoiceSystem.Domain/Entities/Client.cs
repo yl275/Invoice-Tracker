@@ -7,6 +7,8 @@ public class Client
     public string Abn { get; private set; }
     public string Name { get; private set; }
     public string PhoneNumber { get; private set; }
+    public string? Email { get; private set; }
+    public string? Comment { get; private set; }
 
     // Navigation property
     private readonly List<Invoice> _invoices = new();
@@ -20,7 +22,7 @@ public class Client
         PhoneNumber = null!;
     }
 
-    public Client(string userId, string abn, string name, string phoneNumber)
+    public Client(string userId, string abn, string name, string phoneNumber, string? email = null, string? comment = null)
     {
         if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentException("User ID cannot be empty", nameof(userId));
         if (string.IsNullOrWhiteSpace(abn)) throw new ArgumentException("ABN cannot be empty", nameof(abn));
@@ -32,14 +34,24 @@ public class Client
         Abn = abn;
         Name = name;
         PhoneNumber = phoneNumber;
+        Email = NormalizeOptional(email);
+        Comment = NormalizeOptional(comment);
     }
 
-    public void UpdateContactInfo(string name, string phoneNumber)
+    public void UpdateContactInfo(string name, string phoneNumber, string? email = null, string? comment = null)
     {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be empty", nameof(name));
         if (string.IsNullOrWhiteSpace(phoneNumber)) throw new ArgumentException("Phone Number cannot be empty", nameof(phoneNumber));
 
         Name = name;
         PhoneNumber = phoneNumber;
+        Email = NormalizeOptional(email);
+        Comment = NormalizeOptional(comment);
+    }
+
+    private static string? NormalizeOptional(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        return value.Trim();
     }
 }

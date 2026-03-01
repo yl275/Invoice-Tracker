@@ -27,7 +27,9 @@ namespace InvoiceSystem.Application.Services
                 Id = client.Id,
                 Abn = client.Abn,
                 Name = client.Name,
-                PhoneNumber = client.PhoneNumber
+                PhoneNumber = client.PhoneNumber,
+                Email = client.Email,
+                Comment = client.Comment
             };
         }
 
@@ -39,7 +41,9 @@ namespace InvoiceSystem.Application.Services
                 Id = c.Id,
                 Abn = c.Abn,
                 Name = c.Name,
-                PhoneNumber = c.PhoneNumber
+                PhoneNumber = c.PhoneNumber,
+                Email = c.Email,
+                Comment = c.Comment
             });
         }
 
@@ -48,7 +52,14 @@ namespace InvoiceSystem.Application.Services
             if (!_userContext.HasUser)
                 throw new UnauthorizedAccessException("User must be authenticated to create a client.");
 
-            var client = new Client(_userContext.UserId!, createClientDto.Abn, createClientDto.Name, createClientDto.PhoneNumber);
+            var client = new Client(
+                _userContext.UserId!,
+                createClientDto.Abn,
+                createClientDto.Name,
+                createClientDto.PhoneNumber,
+                createClientDto.Email,
+                createClientDto.Comment
+            );
             await _clientRepository.AddAsync(client);
 
             return new ClientDto
@@ -56,7 +67,9 @@ namespace InvoiceSystem.Application.Services
                 Id = client.Id,
                 Abn = client.Abn,
                 Name = client.Name,
-                PhoneNumber = client.PhoneNumber
+                PhoneNumber = client.PhoneNumber,
+                Email = client.Email,
+                Comment = client.Comment
             };
         }
 
@@ -65,7 +78,12 @@ namespace InvoiceSystem.Application.Services
             var client = await _clientRepository.GetByIdAsync(id);
             if (client != null)
             {
-                client.UpdateContactInfo(updateClientDto.Name, updateClientDto.PhoneNumber);
+                client.UpdateContactInfo(
+                    updateClientDto.Name,
+                    updateClientDto.PhoneNumber,
+                    updateClientDto.Email,
+                    updateClientDto.Comment
+                );
                 await _clientRepository.UpdateAsync(client);
             }
         }

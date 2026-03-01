@@ -20,6 +20,20 @@ export const columns: ColumnDef<Client>[] = [
     header: "Phone",
   },
   {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => row.original.email || "-",
+  },
+  {
+    accessorKey: "comment",
+    header: "Comment",
+    cell: ({ row }) => {
+      const comment = row.original.comment?.trim();
+      if (!comment) return "-";
+      return comment.length > 60 ? `${comment.slice(0, 60)}...` : comment;
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => {
       const client = row.original;

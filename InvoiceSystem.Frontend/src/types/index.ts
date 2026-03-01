@@ -3,6 +3,8 @@ export interface Client {
   name: string;
   abn: string;
   phoneNumber: string;
+  email?: string | null;
+  comment?: string | null;
 }
 
 export interface Product {
@@ -56,6 +58,8 @@ export interface CreateClientRequest {
   name: string;
   abn: string;
   phoneNumber: string;
+  email?: string | null;
+  comment?: string | null;
 }
 
 export interface CreateProductRequest {
