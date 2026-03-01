@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SignedIn, SignedOut, SignIn, SignUp } from "@clerk/clerk-react";
 import { MainLayout } from "./layouts/MainLayout";
+import { PublicLayout } from "./layouts/PublicLayout.tsx";
 import InvoicesPage from "./pages/invoices/page";
 import CreateInvoicePage from "./pages/invoices/create/page";
 import InvoiceDetailPage from "./pages/invoices/detail/page";
@@ -10,6 +11,10 @@ import EditClientPage from "./pages/clients/edit/page";
 import ProductsPage from "./pages/products/page";
 import CreateProductPage from "./pages/products/create/page";
 import EditProductPage from "./pages/products/edit/page";
+import HomePage from "./pages/public/home/page";
+import PricingPage from "./pages/public/pricing/page";
+import DocsPage from "./pages/public/docs/page";
+import SupportPage from "./pages/public/support/page";
 import { AuthSetup } from "./components/AuthSetup";
 
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -32,8 +37,17 @@ function App() {
             <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />} />
           </>
         )}
-        <Route path="/" element={publishableKey ? <RequireAuth><MainLayout /></RequireAuth> : <MainLayout />}>
-          <Route index element={<Navigate to="/invoices" replace />} />
+
+        <Route path="/" element={<PublicLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="pricing" element={<PricingPage />} />
+          <Route path="docs" element={<DocsPage />} />
+          <Route path="support" element={<SupportPage />} />
+        </Route>
+
+        <Route path="/dashboard" element={<Navigate to="/invoices" replace />} />
+
+        <Route element={publishableKey ? <RequireAuth><MainLayout /></RequireAuth> : <MainLayout />}>
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="invoices/create" element={<CreateInvoicePage />} />
           <Route path="invoices/:id" element={<InvoiceDetailPage />} />
@@ -43,8 +57,8 @@ function App() {
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/create" element={<CreateProductPage />} />
           <Route path="products/:id/edit" element={<EditProductPage />} />
-          <Route path="*" element={<div>Not Found</div>} />
         </Route>
+        <Route path="*" element={<div>Not Found</div>} />
       </Routes>
     </BrowserRouter>
   );
