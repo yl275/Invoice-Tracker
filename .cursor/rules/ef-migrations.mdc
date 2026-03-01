@@ -1,0 +1,21 @@
+---
+description: EF Core migrations - use tooling to generate, never hand-write
+globs: **/*Migration*.cs,**/ApplicationDbContext.cs,**/Entities/*.cs
+alwaysApply: false
+---
+
+# EF Core Migrations
+
+- **Do not hand-write migration classes.** Hand-written migrations easily drift from the model and cause runtime errors (e.g. missing columns).
+- **Workflow for schema changes:**
+  1. Change only **entity classes** and/or **ApplicationDbContext** (e.g. new properties, `OnModelCreating`).
+  2. Generate the migration with the EF CLI:
+     ```bash
+     dotnet ef migrations add YourMigrationName --project InvoiceSystem.Infrastructure --startup-project InvoiceSystem.API
+     ```
+  3. Review the generated migration under `InvoiceSystem.Infrastructure/Migrations/`.
+  4. Apply to the database (at startup the API runs migrations; for local/dev you can run):
+     ```bash
+     dotnet ef database update --project InvoiceSystem.Infrastructure --startup-project InvoiceSystem.API
+     ```
+- **Scope:** Entity and DbContext changes in `InvoiceSystem.Domain`, `InvoiceSystem.Infrastructure` (including Migrations). When adding or changing columns/tables, always use the above workflow.
