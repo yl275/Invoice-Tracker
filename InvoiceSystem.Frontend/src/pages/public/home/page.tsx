@@ -1,8 +1,9 @@
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { CalendarDays, Printer, Save, Workflow } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BentoCard, BentoGrid } from "@/components/ui/bento-grid";
 import TextType from "@/components/TextType";
+import { DemoLoginButton } from "@/components/DemoLoginButton";
 
 const useClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const ctaButtonClassName =
@@ -58,6 +59,8 @@ const bentoItems = [
 ];
 
 export default function HomePage() {
+  const navigate = useNavigate();
+
   return (
     <section className="snap-y snap-mandatory">
       <div className="flex min-h-screen snap-start items-center justify-center bg-gradient-to-br from-slate-950 via-black to-slate-900">
@@ -105,6 +108,25 @@ export default function HomePage() {
             <Link to="/pricing" className={`${pricingButtonClassName} bg-white/15 text-white hover:bg-white/25`}>
               View pricing
             </Link>
+          </div>
+          <div className="pt-4 text-sm text-slate-300 space-y-1">
+            <span className="mr-2">Still hesitate?</span>
+            {useClerk ? (
+              <span>
+                <DemoLoginButton />{" "}
+                <span className="ml-2 text-xs text-slate-400">
+                  (demo account: demo-invoicesys / Demo1234!invoice)
+                </span>
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="underline underline-offset-4 hover:text-white"
+                onClick={() => navigate("/dashboard")}
+              >
+                Try this demo
+              </button>
+            )}
           </div>
         </div>
       </div>
