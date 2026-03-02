@@ -77,5 +77,45 @@ public class DevController : ControllerBase
             invoicesCreated = 2
         });
     }
+
+    /// <summary>
+    /// Permanently delete all data (clients, products, invoices, business profile)
+    /// for the current user. Intended for developer cleanup and testing.
+    /// </summary>
+    [HttpDelete("everything")]
+    public async Task<IActionResult> DeleteEverythingAsync()
+    {
+        if (!_userContext.HasUser)
+        {
+            return Unauthorized("No current user.");
+        }
+
+        var userId = _userContext.UserId!;
+
+        var invoices = await _dbContext.Invoices.Where(i => i.UserId == userId).ToListAsync();
+        var clients = await _dbContext.Clients.Where(c => c.UserId == userId).ToListAsync();
+        var products = await _dbContext.Products.Where(p => p.UserId == userId).ToListAsync();
+        var profiles = await _dbContext.BusinessProfiles.Where(p => p.UserId == userId).ToListAsync();
+
+        var invoiceCount = invoices.Count;
+        var clientCount = clients.Count;
+        var productCount = products.Count;
+        var profileCount = profiles.Count;
+
+        _dbContext.Invoices.RemoveRange(invoices);
+        _dbContext.Clients.RemoveRange(clients);
+        _dbContext.Products.RemoveRange(products);
+        _dbContext.BusinessProfiles.RemoveRange(profiles);
+
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(new
+        {
+            invoicesDeleted = invoiceCount,
+            clientsDeleted = clientCount,
+            productsDeleted = productCount,
+            profilesDeleted = profileCount
+        });
+    }
 }
 

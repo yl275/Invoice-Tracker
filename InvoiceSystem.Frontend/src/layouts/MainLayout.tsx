@@ -4,6 +4,7 @@ import { UserButton } from "@clerk/clerk-react";
 import { FileText, Users, Package, Menu, X, UserRound, Settings, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,28 @@ const useClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 type SidebarProps = React.HTMLAttributes<HTMLDivElement>;
 
+const deleteWords = [
+  "invoice",
+  "client",
+  "product",
+  "profile",
+  "workspace",
+  "permanent",
+  "delete",
+  "confirm",
+  "irreversible",
+  "cleanup",
+];
+
+function generateDeletePhrase() {
+  const parts: string[] = [];
+  for (let i = 0; i < 5; i++) {
+    const index = Math.floor(Math.random() * deleteWords.length);
+    parts.push(deleteWords[index]);
+  }
+  return parts.join(" ");
+}
+
 export function MainLayout({ className }: SidebarProps) {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -25,6 +48,10 @@ export function MainLayout({ className }: SidebarProps) {
   const [theme, setThemeState] = useState<Theme>("light");
   const [seeding, setSeeding] = useState(false);
   const [seedMessage, setSeedMessage] = useState<string | null>(null);
+  const [deletePhrase, setDeletePhrase] = useState("");
+  const [deleteInput, setDeleteInput] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setThemeState(getInitialTheme());
@@ -34,6 +61,14 @@ export function MainLayout({ className }: SidebarProps) {
     setThemeState(next);
     setTheme(next);
   };
+
+  useEffect(() => {
+    if (isSettingsOpen && !deletePhrase) {
+      setDeletePhrase(generateDeletePhrase());
+      setDeleteInput("");
+      setDeleteMessage(null);
+    }
+  }, [isSettingsOpen, deletePhrase]);
 
   const handleSeedData = async () => {
     setSeeding(true);
@@ -53,6 +88,28 @@ export function MainLayout({ className }: SidebarProps) {
       setSeedMessage("Failed to seed data. See console for details.");
     } finally {
       setSeeding(false);
+    }
+  };
+
+  const handleDeleteEverything = async () => {
+    setDeleting(true);
+    setDeleteMessage(null);
+    try {
+      const response = await api.delete("/dev/everything");
+      const data = response.data as {
+        invoicesDeleted?: number;
+        clientsDeleted?: number;
+        productsDeleted?: number;
+        profilesDeleted?: number;
+      };
+      setDeleteMessage(
+        `Deleted ${data.invoicesDeleted ?? 0} invoices, ${data.clientsDeleted ?? 0} clients, ${data.productsDeleted ?? 0} products, ${data.profilesDeleted ?? 0} profiles.`,
+      );
+    } catch (error) {
+      console.error("Failed to delete data", error);
+      setDeleteMessage("Failed to delete data. See console for details.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -193,20 +250,76 @@ export function MainLayout({ className }: SidebarProps) {
                     </div>
                   </div>
 
-p[]                  <div className="space-y-2 pt-4 border-t">
-                    <p className="text-sm font-medium">Developer</p>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={handleSeedData}
-                      disabled={seeding}
-                    >
-                      {seeding ? "Seeding dummy data..." : "Seed dummy data"}
-                    </Button>
-                    {seedMessage && (
-                      <p className="text-xs text-muted-foreground">{seedMessage}</p>
-                    )}
+                  <div className="space-y-4 pt-4 border-t">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Developer</p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={handleSeedData}
+                        disabled={seeding}
+                      >
+                        {seeding ? "Seeding dummy data..." : "Seed dummy data"}
+                      </Button>
+                      {seedMessage && (
+                        <p className="text-xs text-muted-foreground">{seedMessage}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2 rounded-md bg-destructive/5 p-3">
+                      <p className="text-sm font-semibold text-destructive">
+                        Delete everything
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Permanently delete all clients, products, invoices, and business profile
+                        for this account. This action cannot be undone.
+                      </p>
+                      {deletePhrase && (
+                        <p className="text-xs font-mono text-muted-foreground">
+                          Type this to confirm:{" "}
+                          <span className="break-all select-none">{deletePhrase}</span>
+                        </p>
+                      )}
+                      <Input
+                        type="text"
+                        value={deleteInput}
+                        onChange={(e) => setDeleteInput(e.target.value)}
+                        placeholder="Type the confirmation phrase exactly"
+                        className="h-8 text-xs"
+                      />
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="destructive"
+                          disabled={
+                            deleting ||
+                            !deletePhrase ||
+                            deleteInput.trim() !== deletePhrase.trim()
+                          }
+                          onClick={handleDeleteEverything}
+                        >
+                          {deleting ? "Deleting..." : "Delete everything"}
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="text-xs hover:bg-muted/80"
+                          onClick={() => {
+                            setDeletePhrase(generateDeletePhrase());
+                            setDeleteInput("");
+                            setDeleteMessage(null);
+                          }}
+                        >
+                          New phrase
+                        </Button>
+                      </div>
+                      {deleteMessage && (
+                        <p className="text-xs text-muted-foreground">{deleteMessage}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </DialogContent>
