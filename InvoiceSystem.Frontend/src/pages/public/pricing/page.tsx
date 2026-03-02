@@ -30,8 +30,14 @@ export default function PricingPage() {
           </span>
           <h2 className="font-semibold">Pro</h2>
           <p className="mt-2 text-sm text-muted-foreground">For professional teams with high invoice volume.</p>
-          <p className="mt-4 text-4xl font-bold">$5 / One-Time</p>
-          <p className="mt-1 text-sm text-muted-foreground">Payment</p>
+          <div className="mt-4 flex items-baseline gap-3">
+            <p className="text-xl font-semibold text-muted-foreground line-through">$5</p>
+            <p className="text-3xl font-bold">$1</p>
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+              80% OFF
+            </span>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">One-time payment, lifetime Pro.</p>
           <ul className="mt-5 space-y-1.5 text-sm">
             <li className="flex items-center gap-2">
               <Check className="h-4 w-4 text-green-600" />

@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { SignedIn, SignedOut, SignIn, SignUp } from "@clerk/clerk-react";
+import { ArrowLeft } from "lucide-react";
 import { MainLayout } from "./layouts/MainLayout";
 import { PublicLayout } from "./layouts/PublicLayout.tsx";
+import { Button } from "@/components/ui/button";
 import InvoicesPage from "./pages/invoices/page";
 import CreateInvoicePage from "./pages/invoices/create/page";
 import InvoiceDetailPage from "./pages/invoices/detail/page";
@@ -30,7 +32,15 @@ function App() {
             <Route
               path="/sign-in/*"
               element={
-                <div className="flex min-h-screen items-center justify-center">
+                <div className="relative flex min-h-screen items-center justify-center bg-background">
+                  <div className="absolute left-4 top-4">
+                    <Link to="/">
+                      <Button variant="ghost" size="sm" className="gap-1">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span>Back to home</span>
+                      </Button>
+                    </Link>
+                  </div>
                   <SignIn />
                 </div>
               }
@@ -38,7 +48,15 @@ function App() {
             <Route
               path="/sign-up/*"
               element={
-                <div className="flex min-h-screen items-center justify-center">
+                <div className="relative flex min-h-screen items-center justify-center bg-background">
+                  <div className="absolute left-4 top-4">
+                    <Link to="/">
+                      <Button variant="ghost" size="sm" className="gap-1">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span>Back to home</span>
+                      </Button>
+                    </Link>
+                  </div>
                   <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />
                 </div>
               }

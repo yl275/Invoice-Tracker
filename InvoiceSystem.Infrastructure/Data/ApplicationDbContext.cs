@@ -22,6 +22,7 @@ namespace InvoiceSystem.Infrastructure.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
+        public DbSet<UserSubscription> UserSubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -92,6 +93,21 @@ namespace InvoiceSystem.Infrastructure.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.Total).HasColumnType("decimal(18,2)");
+            });
+
+            // Configure UserSubscription
+            modelBuilder.Entity<UserSubscription>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.Plan).IsRequired();
+                entity.Property(e => e.PurchasedAt)
+                      .HasColumnType("timestamp without time zone");
+
+                entity.HasIndex(e => e.UserId).IsUnique();
+
+                if (_userContext != null)
+                    entity.HasQueryFilter(e => e.UserId == _userContext.UserId);
             });
         }
     }

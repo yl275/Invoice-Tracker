@@ -48,6 +48,7 @@ export function MainLayout({ className }: SidebarProps) {
   const [theme, setThemeState] = useState<Theme>("light");
   const [seeding, setSeeding] = useState(false);
   const [seedMessage, setSeedMessage] = useState<string | null>(null);
+  const [isPro, setIsPro] = useState(false);
   const [deletePhrase, setDeletePhrase] = useState("");
   const [deleteInput, setDeleteInput] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -55,6 +56,18 @@ export function MainLayout({ className }: SidebarProps) {
 
   useEffect(() => {
     setThemeState(getInitialTheme());
+  }, []);
+
+  useEffect(() => {
+    // Fetch billing status (free / pro)
+    api
+      .get<{ plan: string; isPro: boolean }>("/billing/status")
+      .then((res) => {
+        setIsPro(Boolean(res.data?.isPro));
+      })
+      .catch((error) => {
+        console.warn("Failed to load billing status", error);
+      });
   }, []);
 
   const handleThemeChange = (next: Theme) => {
@@ -206,7 +219,31 @@ export function MainLayout({ className }: SidebarProps) {
             ))}
           </nav>
 
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-4 space-y-2">
+            {!isPro ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full justify-center text-sm font-semibold"
+                onClick={async () => {
+                  try {
+                    const res = await api.post<{ url: string }>("/billing/create-checkout-session");
+                    if (res.data?.url) {
+                      window.location.href = res.data.url;
+                    }
+                  } catch (error) {
+                    console.error("Failed to start checkout", error);
+                    alert("Failed to start Stripe checkout. Please try again.");
+                  }
+                }}
+              >
+                Upgrade to Pro
+              </Button>
+            ) : (
+              <p className="text-xs font-semibold text-emerald-500">
+                You are Pro
+              </p>
+            )}
             <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
               <Button
                 variant="ghost"
