@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { UserButton } from "@clerk/clerk-react";
-import { FileText, Users, Package, Menu, X, UserRound } from "lucide-react";
+import { FileText, Users, Package, Menu, X, UserRound, Settings, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { getInitialTheme, setTheme, type Theme } from "@/theme";
 
 const useClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -12,6 +20,17 @@ type SidebarProps = React.HTMLAttributes<HTMLDivElement>;
 export function MainLayout({ className }: SidebarProps) {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [theme, setThemeState] = useState<Theme>("light");
+
+  useEffect(() => {
+    setThemeState(getInitialTheme());
+  }, []);
+
+  const handleThemeChange = (next: Theme) => {
+    setThemeState(next);
+    setTheme(next);
+  };
 
   const navItems = [
     { name: "Invoices", href: "/invoices", icon: FileText },
@@ -78,14 +97,14 @@ export function MainLayout({ className }: SidebarProps) {
       )}
 
       {/* Desktop Sidebar */}
-      <aside className="border-r bg-slate-50/40 dark:bg-slate-900/40 hidden md:block">
+      <aside className="border-r bg-slate-50/40 dark:bg-slate-900/40 hidden md:flex md:flex-col">
         <div className="p-6 flex items-center justify-between">
           <Link to="/" className="text-2xl font-bold tracking-tight hover:opacity-80">
             InvoiceSys
           </Link>
           {useClerk && <UserButton afterSignOutUrl="/sign-in" />}
         </div>
-        <div className="px-4 py-2">
+        <div className="px-4 py-2 flex-1 flex flex-col">
           <nav className="space-y-2">
             {navItems.map((item) => (
               <Link key={item.href} to={item.href}>
@@ -105,6 +124,54 @@ export function MainLayout({ className }: SidebarProps) {
               </Link>
             ))}
           </nav>
+
+          <div className="mt-auto pt-4">
+            <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-sm text-muted-foreground"
+                onClick={() => setIsSettingsOpen(true)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </Button>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Settings</DialogTitle>
+                  <DialogDescription>
+                    Personalize how InvoiceSys looks on this device.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-4 space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Theme</p>
+                    <div className="inline-flex rounded-md border bg-muted/40 p-1">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={theme === "light" ? "default" : "ghost"}
+                        className="gap-1"
+                        onClick={() => handleThemeChange("light")}
+                      >
+                        <Sun className="h-4 w-4" />
+                        <span>Light</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant={theme === "dark" ? "default" : "ghost"}
+                        className="gap-1"
+                        onClick={() => handleThemeChange("dark")}
+                      >
+                        <Moon className="h-4 w-4" />
+                        <span>Dark</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </aside>
       <main className="p-4 md:p-8">

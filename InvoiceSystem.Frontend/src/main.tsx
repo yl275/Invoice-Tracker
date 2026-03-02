@@ -4,8 +4,11 @@ import { ClerkProvider } from "@clerk/clerk-react";
 import "./index.css";
 import App from "./App.tsx";
 import { setApiAuth } from "./services/api";
+import { initTheme } from "./theme";
 
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+initTheme();
 if (!publishableKey && import.meta.env.MODE !== "test") {
   console.warn("VITE_CLERK_PUBLISHABLE_KEY is not set. Auth will use X-User-Id header for dev.");
   // Dev bypass: no Clerk, use X-User-Id
