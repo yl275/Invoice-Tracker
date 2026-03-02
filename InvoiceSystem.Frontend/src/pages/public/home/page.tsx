@@ -19,7 +19,7 @@ const bentoItems = [
     Icon: Printer,
     className: "md:col-span-2",
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-transparent dark:from-slate-800/50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800/80 dark:to-slate-950" />
     ),
   },
   {
@@ -30,7 +30,7 @@ const bentoItems = [
     Icon: Workflow,
     className: "md:col-span-1",
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-100/70 to-transparent dark:from-indigo-900/30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-100/70 to-slate-50 dark:from-indigo-800/75 dark:to-slate-950" />
     ),
   },
   {
@@ -41,7 +41,7 @@ const bentoItems = [
     Icon: Save,
     className: "md:col-span-1",
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/70 to-transparent dark:from-emerald-900/30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/70 to-slate-50 dark:from-emerald-800/75 dark:to-slate-950" />
     ),
   },
   {
@@ -52,14 +52,14 @@ const bentoItems = [
     Icon: CalendarDays,
     className: "md:col-span-2",
     background: (
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-100/70 to-transparent dark:from-amber-900/30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-100/70 to-slate-50 dark:from-amber-800/75 dark:to-slate-950" />
     ),
   },
 ];
 
 export default function HomePage() {
   return (
-    <section className="-mx-4 snap-y snap-mandatory md:-mx-6">
+    <section className="snap-y snap-mandatory">
       <div className="flex min-h-screen snap-start items-center justify-center bg-gradient-to-br from-slate-950 via-black to-slate-900">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <h1 className="min-h-20 p-4 text-3xl font-bold tracking-tight text-white md:min-h-24 md:text-4xl">
@@ -109,21 +109,23 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="flex min-h-screen snap-start items-center bg-white py-8">
-        <BentoGrid className="grid-cols-1 auto-rows-[18rem] md:grid-cols-3">
-          {bentoItems.map((item) => (
-            <BentoCard
-              key={item.name}
-              name={item.name}
-              description={item.description}
-              href={item.href}
-              cta={item.cta}
-              Icon={item.Icon}
-              className={item.className}
-              background={item.background}
-            />
-          ))}
-        </BentoGrid>
+      <div className="flex min-h-screen snap-start items-center bg-slate-100 dark:bg-slate-900 py-8">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+          <BentoGrid className="grid-cols-1 auto-rows-[18rem] md:grid-cols-3">
+            {bentoItems.map((item) => (
+              <BentoCard
+                key={item.name}
+                name={item.name}
+                description={item.description}
+                href={item.href}
+                cta={item.cta}
+                Icon={item.Icon}
+                className={item.className}
+                background={item.background}
+              />
+            ))}
+          </BentoGrid>
+        </div>
       </div>
 
       <div className="flex min-h-screen snap-start items-center justify-center bg-gradient-to-br from-slate-950 via-black to-slate-900 py-10 text-center">

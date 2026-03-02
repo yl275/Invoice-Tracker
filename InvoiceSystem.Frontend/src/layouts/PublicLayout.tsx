@@ -1,5 +1,9 @@
+import { useEffect, useState } from "react";
 import { SignOutButton, SignedIn, SignedOut } from "@clerk/clerk-react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getInitialTheme, setTheme, type Theme } from "@/theme";
 
 const useClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -10,6 +14,20 @@ function navClassName(isActive: boolean): string {
 }
 
 export function PublicLayout() {
+  const location = useLocation();
+  const [theme, setThemeState] = useState<Theme>("light");
+
+  useEffect(() => {
+    setThemeState(getInitialTheme());
+  }, []);
+
+  const handleThemeChange = (next: Theme) => {
+    setThemeState(next);
+    setTheme(next);
+  };
+
+  const isHome = location.pathname === "/";
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b">
@@ -32,6 +50,28 @@ export function PublicLayout() {
           </div>
 
           <div className="flex items-center gap-4 text-sm">
+            <div className="hidden items-center gap-1 rounded-full border bg-muted/40 px-1 py-0.5 md:flex">
+              <Button
+                type="button"
+                variant={theme === "light" ? "default" : "ghost"}
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => handleThemeChange("light")}
+                aria-label="Use light theme"
+              >
+                <Sun className="h-3 w-3" />
+              </Button>
+              <Button
+                type="button"
+                variant={theme === "dark" ? "default" : "ghost"}
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => handleThemeChange("dark")}
+                aria-label="Use dark theme"
+              >
+                <Moon className="h-3 w-3" />
+              </Button>
+            </div>
             <Link to="/dashboard" className="text-muted-foreground hover:text-foreground">
               Dashboard
             </Link>
@@ -54,7 +94,13 @@ export function PublicLayout() {
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6">
+      <main
+        className={
+          isHome
+            ? "w-full flex-1"
+            : "mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6"
+        }
+      >
         <Outlet />
       </main>
       <footer className="border-t">

@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getInitialTheme, setTheme, type Theme } from "@/theme";
+import api from "@/services/api";
 
 const useClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -22,6 +23,8 @@ export function MainLayout({ className }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [theme, setThemeState] = useState<Theme>("light");
+  const [seeding, setSeeding] = useState(false);
+  const [seedMessage, setSeedMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setThemeState(getInitialTheme());
@@ -30,6 +33,27 @@ export function MainLayout({ className }: SidebarProps) {
   const handleThemeChange = (next: Theme) => {
     setThemeState(next);
     setTheme(next);
+  };
+
+  const handleSeedData = async () => {
+    setSeeding(true);
+    setSeedMessage(null);
+    try {
+      const response = await api.post("/dev/seed");
+      const data = response.data as {
+        clientsCreated?: number;
+        productsCreated?: number;
+        invoicesCreated?: number;
+      };
+      setSeedMessage(
+        `Seeded ${data.clientsCreated ?? 0} clients, ${data.productsCreated ?? 0} products, ${data.invoicesCreated ?? 0} invoices.`,
+      );
+    } catch (error) {
+      console.error("Failed to seed data", error);
+      setSeedMessage("Failed to seed data. See console for details.");
+    } finally {
+      setSeeding(false);
+    }
   };
 
   const navItems = [
@@ -167,6 +191,22 @@ export function MainLayout({ className }: SidebarProps) {
                         <span>Dark</span>
                       </Button>
                     </div>
+                  </div>
+
+p[]                  <div className="space-y-2 pt-4 border-t">
+                    <p className="text-sm font-medium">Developer</p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleSeedData}
+                      disabled={seeding}
+                    >
+                      {seeding ? "Seeding dummy data..." : "Seed dummy data"}
+                    </Button>
+                    {seedMessage && (
+                      <p className="text-xs text-muted-foreground">{seedMessage}</p>
+                    )}
                   </div>
                 </div>
               </DialogContent>
