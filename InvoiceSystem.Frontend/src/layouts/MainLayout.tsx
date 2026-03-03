@@ -141,7 +141,7 @@ export function MainLayout({ className }: SidebarProps) {
       )}
     >
       {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between p-4 border-b bg-background sticky top-0 z-50">
+      <header className="print:hidden md:hidden flex items-center justify-between p-4 border-b bg-background sticky top-0 z-50">
         <Link to="/" className="text-xl font-bold tracking-tight hover:opacity-80">
           InvoiceSys
         </Link>
