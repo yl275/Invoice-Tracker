@@ -73,6 +73,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
@@ -128,6 +129,7 @@ export default function ProfilePage() {
 
   async function onSubmit(values: ProfileFormValues) {
     setLoading(true);
+    setSaved(false);
     try {
       const payload: UpsertBusinessProfileRequest = {
         name: values.name,
@@ -147,6 +149,7 @@ export default function ProfilePage() {
       };
 
       await api.put("/business-profile", payload);
+      setSaved(true);
     } catch (error) {
       console.error("Failed to save business profile", error);
     } finally {
@@ -316,7 +319,10 @@ export default function ProfilePage() {
             />
           )}
 
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end gap-3">
+            {saved && !loading && (
+              <span className="text-xs font-medium text-emerald-600">Saved</span>
+            )}
             <Button type="submit" disabled={loading}>
               {loading ? "Saving..." : "Save profile"}
             </Button>
