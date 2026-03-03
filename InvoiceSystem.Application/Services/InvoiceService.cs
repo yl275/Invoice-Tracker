@@ -13,13 +13,20 @@ namespace InvoiceSystem.Application.Services
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IClientRepository _clientRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IBusinessProfileRepository _businessProfileRepository;
         private readonly IUserContext _userContext;
 
-        public InvoiceService(IInvoiceRepository invoiceRepository, IClientRepository clientRepository, IProductRepository productRepository, IUserContext userContext)
+        public InvoiceService(
+            IInvoiceRepository invoiceRepository,
+            IClientRepository clientRepository,
+            IProductRepository productRepository,
+            IBusinessProfileRepository businessProfileRepository,
+            IUserContext userContext)
         {
             _invoiceRepository = invoiceRepository;
             _clientRepository = clientRepository;
             _productRepository = productRepository;
+            _businessProfileRepository = businessProfileRepository;
             _userContext = userContext;
         }
 
@@ -28,19 +35,24 @@ namespace InvoiceSystem.Application.Services
             if (!_userContext.HasUser)
                 throw new UnauthorizedAccessException("User must be authenticated to create an invoice.");
 
+            var userId = _userContext.UserId!;
             var client = await _clientRepository.GetByIdAsync(createInvoiceDto.ClientId);
             if (client == null) throw new Exception("Client not found");
+
+            var businessProfile = await _businessProfileRepository.GetByUserIdAsync(userId);
+            if (businessProfile == null)
+                throw new Exception("Business profile not found for current user.");
 
             var dueDate = createInvoiceDto.DueDate
                 ?? createInvoiceDto.InvoiceDate.AddDays(createInvoiceDto.DueInDays ?? 30);
 
             var invoice = new Invoice(
-                _userContext.UserId!,
+                userId,
                 createInvoiceDto.InvoiceCode,
                 createInvoiceDto.InvoiceDate,
                 client,
-                dueDate
-            );
+                businessProfile,
+                dueDate);
 
             if (createInvoiceDto.Items == null || !createInvoiceDto.Items.Any())
                 throw new ArgumentException("Invoice must contain at least one item.");
@@ -69,6 +81,16 @@ namespace InvoiceSystem.Application.Services
                 ClientId = invoice.ClientId,
                 ClientName = invoice.ClientNameSnapshot,
                 ClientAbn = invoice.ClientAbnSnapshot,
+                BusinessName = invoice.BusinessNameSnapshot,
+                BusinessAbn = invoice.BusinessAbnSnapshot,
+                BusinessEmail = invoice.BusinessEmailSnapshot,
+                BusinessPhone = invoice.BusinessPhoneSnapshot,
+                BusinessPostalLocation = invoice.BusinessPostalLocationSnapshot,
+                BusinessWebsite = invoice.BusinessWebsiteSnapshot,
+                BusinessPaymentMethod = invoice.BusinessPaymentMethodSnapshot,
+                BusinessBankBsb = invoice.BusinessBankBsbSnapshot,
+                BusinessBankAccountNumber = invoice.BusinessBankAccountNumberSnapshot,
+                BusinessPayId = invoice.BusinessPayIdSnapshot,
                 TotalAmount = invoice.TotalAmount,
                 Items = invoice.Items.Select(i => new InvoiceItemDto
                 {
@@ -96,6 +118,16 @@ namespace InvoiceSystem.Application.Services
                 ClientId = invoice.ClientId,
                 ClientName = invoice.ClientNameSnapshot,
                 ClientAbn = invoice.ClientAbnSnapshot,
+                BusinessName = invoice.BusinessNameSnapshot,
+                BusinessAbn = invoice.BusinessAbnSnapshot,
+                BusinessEmail = invoice.BusinessEmailSnapshot,
+                BusinessPhone = invoice.BusinessPhoneSnapshot,
+                BusinessPostalLocation = invoice.BusinessPostalLocationSnapshot,
+                BusinessWebsite = invoice.BusinessWebsiteSnapshot,
+                BusinessPaymentMethod = invoice.BusinessPaymentMethodSnapshot,
+                BusinessBankBsb = invoice.BusinessBankBsbSnapshot,
+                BusinessBankAccountNumber = invoice.BusinessBankAccountNumberSnapshot,
+                BusinessPayId = invoice.BusinessPayIdSnapshot,
                 TotalAmount = invoice.TotalAmount,
                 Items = invoice.Items.Select(i => new InvoiceItemDto
                 {

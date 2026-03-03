@@ -60,11 +60,26 @@ public class DevController : ControllerBase
         var product1 = products[0];
         var product2 = products[1];
 
-        var invoice1 = new Invoice(userId, $"DEV-{suffix}-1", DateTime.UtcNow.Date, client1);
+        // Use a synthetic business profile snapshot for demo invoices,
+        // so this does not depend on any real saved BusinessProfile.
+        var demoProfile = new BusinessProfile(
+            userId,
+            $"Dev Business {suffix}",
+            $"dev-{suffix}@invoicesys.local",
+            "0400" + random.Next(100000, 999999),
+            $"Level {random.Next(1, 20)} Demo Street, Sydney NSW 2000",
+            null,
+            $"ABN{random.Next(100000000, 999999999)}",
+            "BankTransfer",
+            $"{random.Next(100, 999)}-{random.Next(100, 999)}",
+            random.NextInt64(100000000, 999999999).ToString(),
+            null);
+
+        var invoice1 = new Invoice(userId, $"DEV-{suffix}-1", DateTime.UtcNow.Date, client1, demoProfile);
         invoice1.AddItem(product1, random.Next(1, 5));
         invoice1.AddItem(product2, random.Next(1, 3));
 
-        var invoice2 = new Invoice(userId, $"DEV-{suffix}-2", DateTime.UtcNow.Date.AddDays(-1), client2);
+        var invoice2 = new Invoice(userId, $"DEV-{suffix}-2", DateTime.UtcNow.Date.AddDays(-1), client2, demoProfile);
         invoice2.AddItem(product2, random.Next(1, 4));
 
         await _dbContext.Invoices.AddRangeAsync(invoice1, invoice2);

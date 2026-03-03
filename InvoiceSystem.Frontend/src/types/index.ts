@@ -31,6 +31,16 @@ export interface Invoice {
   clientId: string;
   clientName: string;
   clientAbn: string;
+  businessName: string;
+  businessAbn: string;
+  businessEmail: string;
+  businessPhone: string;
+  businessPostalLocation: string;
+  businessWebsite?: string | null;
+  businessPaymentMethod: PaymentMethod | string;
+  businessBankBsb?: string | null;
+  businessBankAccountNumber?: string | null;
+  businessPayId?: string | null;
   totalAmount: number;
   items: InvoiceItemDto[];
 }

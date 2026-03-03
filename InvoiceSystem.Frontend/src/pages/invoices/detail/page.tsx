@@ -73,13 +73,21 @@ export default function InvoiceDetailPage() {
       <div className="grid gap-6 md:grid-cols-2 mb-8">
         <Card>
           <CardHeader>
-            <CardTitle>Client Details</CardTitle>
+            <CardTitle>From</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-lg font-medium">{invoice.clientName}</div>
-            <div className="text-sm text-muted-foreground">
-              {invoice.clientAbn}
+          <CardContent className="space-y-1 text-sm">
+            <div className="text-lg font-semibold">{invoice.businessName}</div>
+            <div className="text-muted-foreground">{invoice.businessAbn}</div>
+            <div>{invoice.businessEmail}</div>
+            <div>{invoice.businessPhone}</div>
+            <div className="text-muted-foreground">
+              {invoice.businessPostalLocation}
             </div>
+            {invoice.businessWebsite && (
+              <div className="text-xs text-muted-foreground">
+                {invoice.businessWebsite}
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card className="flex flex-col justify-center items-start md:items-end p-6">
@@ -95,9 +103,13 @@ export default function InvoiceDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Line Items</CardTitle>
+          <CardTitle>Bill To &amp; Line Items</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
+          <div className="mb-4 text-sm">
+            <div className="font-medium">{invoice.clientName}</div>
+            <div className="text-muted-foreground">{invoice.clientAbn}</div>
+          </div>
           <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>

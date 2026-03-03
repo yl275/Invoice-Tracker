@@ -65,17 +65,18 @@ namespace InvoiceSystem.Infrastructure
             {
                 var clients = context.Clients.IgnoreQueryFilters().Where(c => c.UserId == DemoUserId).ToList();
                 var products = context.Products.IgnoreQueryFilters().Where(p => p.UserId == DemoUserId).ToList();
+                var profile = context.BusinessProfiles.IgnoreQueryFilters().FirstOrDefault(p => p.UserId == DemoUserId);
 
-                if (clients.Count > 0 && products.Count > 0)
+                if (clients.Count > 0 && products.Count > 0 && profile != null)
                 {
-                    var invoice1 = new Invoice(DemoUserId, "INV-1001", DateTime.UtcNow.AddDays(-10), clients[0]);
+                    var invoice1 = new Invoice(DemoUserId, "INV-1001", DateTime.UtcNow.AddDays(-10), clients[0], profile);
                     invoice1.AddItem(products[0], 5);
                     invoice1.AddItem(products[1], 2);
 
-                    var invoice2 = new Invoice(DemoUserId, "INV-1002", DateTime.UtcNow.AddDays(-5), clients[1]);
+                    var invoice2 = new Invoice(DemoUserId, "INV-1002", DateTime.UtcNow.AddDays(-5), clients[1], profile);
                     invoice2.AddItem(products[2], 1);
 
-                    var invoice3 = new Invoice(DemoUserId, "INV-1003", DateTime.UtcNow.AddDays(-2), clients[2]);
+                    var invoice3 = new Invoice(DemoUserId, "INV-1003", DateTime.UtcNow.AddDays(-2), clients[2], profile);
                     invoice3.AddItem(products[3], 1);
                     invoice3.AddItem(products[4], 3);
 

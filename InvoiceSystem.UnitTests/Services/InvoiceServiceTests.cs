@@ -14,6 +14,7 @@ namespace InvoiceSystem.UnitTests.Services
         private readonly Mock<IInvoiceRepository> _invoiceRepositoryMock;
         private readonly Mock<IClientRepository> _clientRepositoryMock;
         private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly Mock<IBusinessProfileRepository> _businessProfileRepositoryMock;
         private readonly Mock<IUserContext> _userContextMock;
         private readonly InvoiceService _invoiceService;
 
@@ -22,14 +23,30 @@ namespace InvoiceSystem.UnitTests.Services
             _invoiceRepositoryMock = new Mock<IInvoiceRepository>();
             _clientRepositoryMock = new Mock<IClientRepository>();
             _productRepositoryMock = new Mock<IProductRepository>();
+            _businessProfileRepositoryMock = new Mock<IBusinessProfileRepository>();
             _userContextMock = new Mock<IUserContext>();
             _userContextMock.Setup(x => x.UserId).Returns(TestData.UserId);
             _userContextMock.Setup(x => x.HasUser).Returns(true);
+
+            _businessProfileRepositoryMock.Setup(x => x.GetByUserIdAsync(TestData.UserId))
+                .ReturnsAsync(new BusinessProfile(
+                    TestData.UserId,
+                    "Biz",
+                    "biz@test.local",
+                    "0400",
+                    "Addr",
+                    null,
+                    "ABN123",
+                    "BankTransfer",
+                    "123-456",
+                    "123456789",
+                    null));
 
             _invoiceService = new InvoiceService(
                 _invoiceRepositoryMock.Object,
                 _clientRepositoryMock.Object,
                 _productRepositoryMock.Object,
+                _businessProfileRepositoryMock.Object,
                 _userContextMock.Object
             );
         }
@@ -227,7 +244,19 @@ namespace InvoiceSystem.UnitTests.Services
             // Arrange
             var invoiceId = Guid.NewGuid();
             var client = new Client(TestData.UserId, "ABN", "Client", "PH");
-            var invoice = new Invoice(TestData.UserId, "INV-001", DateTime.Now, client);
+            var profile = new BusinessProfile(
+                TestData.UserId,
+                "Biz",
+                "biz@test.local",
+                "0400",
+                "Addr",
+                null,
+                "ABN123",
+                "BankTransfer",
+                "123-456",
+                "123456789",
+                null);
+            var invoice = new Invoice(TestData.UserId, "INV-001", DateTime.Now, client, profile);
             var product = new Product(TestData.UserId, "P1", "S1", 10m);
             invoice.AddItem(product, 2);
 
@@ -264,8 +293,30 @@ namespace InvoiceSystem.UnitTests.Services
             var client = new Client(TestData.UserId, "ABN", "Client", "PH");
             var invoices = new List<Invoice>
             {
-                new Invoice(TestData.UserId, "INV-1", DateTime.Now, client),
-                new Invoice(TestData.UserId, "INV-2", DateTime.Now, client)
+                new Invoice(TestData.UserId, "INV-1", DateTime.Now, client, new BusinessProfile(
+                    TestData.UserId,
+                    "Biz",
+                    "biz@test.local",
+                    "0400",
+                    "Addr",
+                    null,
+                    "ABN123",
+                    "BankTransfer",
+                    "123-456",
+                    "123456789",
+                    null)),
+                new Invoice(TestData.UserId, "INV-2", DateTime.Now, client, new BusinessProfile(
+                    TestData.UserId,
+                    "Biz",
+                    "biz@test.local",
+                    "0400",
+                    "Addr",
+                    null,
+                    "ABN123",
+                    "BankTransfer",
+                    "123-456",
+                    "123456789",
+                    null))
             };
 
             _invoiceRepositoryMock.Setup(x => x.ListAsync()).ReturnsAsync(invoices);
