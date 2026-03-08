@@ -26,27 +26,45 @@ import { Separator } from "@/components/ui/separator";
 import api from "@/services/api";
 import type { Client, Product, CreateInvoiceRequest } from "@/types";
 
-const invoiceFormSchema = z.object({
-  invoiceCode: z.string().min(1, "Invoice code is required"),
-  invoiceDate: z.string().min(1, "Date is required"),
-  dueDate: z.string().optional(),
-  dueInDays: z
-    .string()
-    .optional()
-    .refine(
-      (value) => !value || (/^\d+$/.test(value) && Number(value) >= 1),
-      "Due in days must be at least 1",
-    ),
-  clientId: z.string().min(1, "Client is required"),
-  items: z
-    .array(
-      z.object({
-        productId: z.string().min(1, "Product is required"),
-        quantity: z.number().min(1, "Quantity must be at least 1"),
-      }),
-    )
-    .min(1, "At least one item is required"),
-});
+const DUE_MODE = { DAYS: "days", DATE: "date" } as const;
+
+const invoiceFormSchema = z
+  .object({
+    invoiceCode: z.string().min(1, "Invoice code is required"),
+    invoiceDate: z.string().min(1, "Date is required"),
+    dueMode: z.enum([DUE_MODE.DAYS, DUE_MODE.DATE]),
+    dueDate: z.string().optional(),
+    dueInDays: z.string().optional(),
+    clientId: z.string().min(1, "Client is required"),
+    items: z
+      .array(
+        z.object({
+          productId: z.string().min(1, "Product is required"),
+          quantity: z.number().min(1, "Quantity must be at least 1"),
+        }),
+      )
+      .min(1, "At least one item is required"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.dueMode === DUE_MODE.DAYS) {
+      const n = data.dueInDays ? Number(data.dueInDays) : NaN;
+      if (!Number.isInteger(n) || n < 1) {
+        ctx.addIssue({
+          path: ["dueInDays"],
+          message: "Due in days must be at least 1",
+          code: z.ZodIssueCode.custom,
+        });
+      }
+    } else {
+      if (!data.dueDate || !data.dueDate.trim()) {
+        ctx.addIssue({
+          path: ["dueDate"],
+          message: "Due date is required",
+          code: z.ZodIssueCode.custom,
+        });
+      }
+    }
+  });
 
 type InvoiceFormValues = z.infer<typeof invoiceFormSchema>;
 
@@ -59,8 +77,9 @@ export default function CreateInvoicePage() {
   const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceFormSchema),
     defaultValues: {
-      invoiceCode: `INV-${Math.floor(Math.random() * 10000)}`, // Auto-generate simple code
+      invoiceCode: `INV-${Math.floor(Math.random() * 10000)}`,
       invoiceDate: new Date().toISOString().split("T")[0],
+      dueMode: DUE_MODE.DAYS,
       dueDate: "",
       dueInDays: "30",
       clientId: "",
@@ -95,14 +114,9 @@ export default function CreateInvoicePage() {
       const payload: CreateInvoiceRequest = {
         invoiceCode: data.invoiceCode,
         invoiceDate: new Date(data.invoiceDate).toISOString(),
-        dueDate: data.dueDate
-          ? new Date(data.dueDate).toISOString()
-          : undefined,
-        dueInDays: data.dueDate
-          ? undefined
-          : data.dueInDays
-            ? Number(data.dueInDays)
-            : undefined,
+        ...(data.dueMode === DUE_MODE.DATE && data.dueDate
+          ? { dueDate: new Date(data.dueDate).toISOString() }
+          : { dueInDays: Number(data.dueInDays) || 30 }),
         clientId: data.clientId,
         items: data.items.map((item) => ({
           productId: item.productId,
@@ -164,35 +178,66 @@ export default function CreateInvoicePage() {
             />
             <FormField
               control={form.control}
-              name="dueDate"
+              name="dueMode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Due Date (optional)</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
+                  <FormLabel>Due</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) => {
+                      field.onChange(v);
+                      if (v === DUE_MODE.DAYS) form.setValue("dueDate", "");
+                      else form.setValue("dueInDays", "30");
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value={DUE_MODE.DAYS}>Due in X days</SelectItem>
+                      <SelectItem value={DUE_MODE.DATE}>Due date</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="dueInDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Or Due in Days</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={field.value ?? ""}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {form.watch("dueMode") === DUE_MODE.DAYS ? (
+              <FormField
+                control={form.control}
+                name="dueInDays"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Due in days</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={field.value ?? ""}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : (
+              <FormField
+                control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Due date</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
           <FormField

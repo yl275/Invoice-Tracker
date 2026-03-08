@@ -43,6 +43,9 @@ namespace InvoiceSystem.Application.Services
             if (businessProfile == null)
                 throw new Exception("Business profile not found for current user.");
 
+            if (createInvoiceDto.DueInDays.HasValue && createInvoiceDto.DueInDays.Value < 1)
+                throw new ArgumentException("Due in days must be at least 1.", nameof(createInvoiceDto));
+
             var dueDate = createInvoiceDto.DueDate
                 ?? createInvoiceDto.InvoiceDate.AddDays(createInvoiceDto.DueInDays ?? 30);
 
