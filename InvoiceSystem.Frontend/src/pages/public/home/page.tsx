@@ -63,8 +63,9 @@ export default function HomePage() {
 
   return (
     <section className="snap-y snap-mandatory">
-      <div className="flex min-h-screen snap-start items-center justify-center bg-gradient-to-br from-slate-950 via-black to-slate-900">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+      {/* Hero: content + demo straddling into bento (Supademo-style) */}
+      <div className="relative flex min-h-screen snap-start flex-col bg-gradient-to-br from-slate-950 via-black to-slate-900 pt-24 pb-0 md:pt-28">
+        <div className="flex flex-1 flex-col items-center justify-center space-y-4 text-center">
           <h1 className="min-h-20 p-4 text-3xl font-bold tracking-tight text-white md:min-h-24 md:text-4xl">
             <TextType
               texts={[
@@ -129,10 +130,27 @@ export default function HomePage() {
             )}
           </div>
         </div>
+
+        {/* Demo: 65% width, 50% in hero / 50% in bento (translateY 50%) */}
+        <div
+          className="relative z-10 mx-auto w-[65%] translate-y-1/2 rounded-xl border border-white/10 bg-slate-900/50 shadow-2xl shadow-black/50 backdrop-blur-sm"
+          style={{ aspectRatio: "2.11" }}
+        >
+          <iframe
+            src="https://app.supademo.com/embed/cmmhi8e8u0dr8zdh1eggfqfvh?embed_v=2&utm_source=embed"
+            loading="lazy"
+            title="Create and Manage Invoices on invoice.yuanli.au"
+            allow="clipboard-write"
+            frameBorder={0}
+            allowFullScreen
+            className="absolute inset-0 h-full w-full rounded-xl"
+          />
+        </div>
       </div>
 
-      <div className="flex min-h-screen snap-start items-center bg-slate-100 dark:bg-slate-900 py-8">
-        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+      {/* Bento: spacing from demo above and support below */}
+      <div className="flex min-h-screen snap-start items-center bg-slate-100 dark:bg-slate-900 pt-[min(32vw,380px)] pb-20">
+        <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-6 md:py-8">
           <BentoGrid className="grid-cols-1 auto-rows-[18rem] md:grid-cols-3">
             {bentoItems.map((item) => (
               <BentoCard
@@ -150,7 +168,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="flex min-h-screen snap-start items-center justify-center bg-gradient-to-br from-slate-950 via-black to-slate-900 py-10 text-center">
+      <div className="flex min-h-screen snap-start items-center justify-center bg-gradient-to-br from-slate-950 via-black to-slate-900 pt-16 pb-10 text-center">
         <div>
           <h2 className="text-2xl font-semibold tracking-tight text-white">Support</h2>
           <p className="mt-2 text-slate-300">
