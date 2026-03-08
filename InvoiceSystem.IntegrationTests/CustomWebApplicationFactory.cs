@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using InvoiceSystem.Application.Interfaces;
+using InvoiceSystem.Domain.Entities;
 using InvoiceSystem.Application.Interfaces.Repositories;
 using InvoiceSystem.Infrastructure.Data;
 using InvoiceSystem.Infrastructure.Repositories;
@@ -24,10 +25,6 @@ namespace InvoiceSystem.IntegrationTests
                     d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
                 if (dbDescriptor != null) services.Remove(dbDescriptor);
 
-                var userContextDescriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(IUserContext));
-                if (userContextDescriptor != null) services.Remove(userContextDescriptor);
-
                 services.AddDbContext<ApplicationDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("InMemoryDbForTesting");
@@ -36,13 +33,32 @@ namespace InvoiceSystem.IntegrationTests
                 services.AddScoped<IClientRepository, ClientRepository>();
                 services.AddScoped<IProductRepository, ProductRepository>();
                 services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-
-                services.AddScoped<IUserContext, TestUserContext>();
+                services.AddScoped<ITeamRepository, TeamRepository>();
 
                 var sp = services.BuildServiceProvider();
-                using var scope = sp.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                db.Database.EnsureCreated();
+                using (var scope = sp.CreateScope())
+                {
+                    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                    db.Database.EnsureCreated();
+                    var team = Team.Create("Test", TestUserId);
+                    db.Teams.Add(team);
+                    db.SaveChanges();
+
+                    var profile = new BusinessProfile(
+                        TestUserId,
+                        "Test Biz",
+                        "test@test.local",
+                        "0400000000",
+                        "123 Test St",
+                        null,
+                        "ABN123456789",
+                        "BankTransfer",
+                        "123-456",
+                        "987654321",
+                        null);
+                    db.BusinessProfiles.Add(profile);
+                    db.SaveChanges();
+                }
             });
         }
 
@@ -53,9 +69,4 @@ namespace InvoiceSystem.IntegrationTests
         }
     }
 
-    public class TestUserContext : IUserContext
-    {
-        public string? UserId => CustomWebApplicationFactory.TestUserId;
-        public bool HasUser => true;
-    }
 }

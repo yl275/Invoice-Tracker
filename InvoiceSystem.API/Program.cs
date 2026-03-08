@@ -21,7 +21,8 @@ var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConn
 var connectionString = ConnectionStringHelper.ConvertPostgresUriToNpgsqlFormat(rawConnectionString);
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUserContext, UserContext>();
+builder.Services.AddScoped<UserContext>();
+builder.Services.AddScoped<IUserContext>(sp => sp.GetRequiredService<UserContext>());
 builder.Services.AddApplication();
 if (builder.Environment.EnvironmentName != "Testing")
 {
@@ -88,6 +89,7 @@ else if (!string.IsNullOrEmpty(clerkIssuer))
     app.UseAuthentication();
 }
 
+app.UseMiddleware<LoadTeamIdsMiddleware>();
 app.UseMiddleware<SeedUserDataMiddleware>();
 app.UseAuthorization();
 app.UseCors();

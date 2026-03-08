@@ -47,11 +47,13 @@ namespace InvoiceSystem.Application.Services
         {
             if (!_userContext.HasUser)
                 throw new UnauthorizedAccessException("User must be authenticated to add a product.");
+            if (!_userContext.CurrentTeamId.HasValue)
+                throw new UnauthorizedAccessException("No team context. Join or create a team first.");
 
             if (createProductDto.Price <= 0)
                 throw new ArgumentException("Price must be greater than zero.");
 
-            var product = new Product(_userContext.UserId!, createProductDto.Name, createProductDto.SKU, createProductDto.Price);
+            var product = new Product(_userContext.CurrentTeamId.Value, _userContext.UserId!, createProductDto.Name, createProductDto.SKU, createProductDto.Price);
             await _productRepository.AddAsync(product);
 
             return new ProductDto

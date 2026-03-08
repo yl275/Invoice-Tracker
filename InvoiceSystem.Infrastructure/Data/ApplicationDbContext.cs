@@ -23,6 +23,9 @@ namespace InvoiceSystem.Infrastructure.Data
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<UserSubscription> UserSubscriptions { get; set; }
+        public DbSet<Team> Teams { get; set; }
+        public DbSet<TeamMember> TeamMembers { get; set; }
+        public DbSet<TeamInvitation> TeamInvitations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +35,7 @@ namespace InvoiceSystem.Infrastructure.Data
             modelBuilder.Entity<Client>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.TeamId).IsRequired();
                 entity.Property(e => e.UserId).IsRequired();
                 entity.Property(e => e.Abn).IsRequired();
                 entity.Property(e => e.Name).IsRequired();
@@ -40,7 +44,8 @@ namespace InvoiceSystem.Infrastructure.Data
                       .HasForeignKey(e => e.ClientId);
 
                 if (_userContext != null)
-                    entity.HasQueryFilter(e => e.UserId == _userContext.UserId);
+                    entity.HasQueryFilter(e => _userContext.TeamIds.Contains(e.TeamId)
+                        && (_userContext.DataScope != "mine" || e.UserId == _userContext.UserId));
             });
 
             // Configure Product
@@ -64,17 +69,20 @@ namespace InvoiceSystem.Infrastructure.Data
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.TeamId).IsRequired();
                 entity.Property(e => e.UserId).IsRequired();
                 entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
 
                 if (_userContext != null)
-                    entity.HasQueryFilter(e => e.UserId == _userContext.UserId);
+                    entity.HasQueryFilter(e => _userContext.TeamIds.Contains(e.TeamId)
+                        && (_userContext.DataScope != "mine" || e.UserId == _userContext.UserId));
             });
 
             // Configure Invoice
             modelBuilder.Entity<Invoice>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.Property(e => e.TeamId).IsRequired();
                 entity.Property(e => e.UserId).IsRequired();
                 entity.HasMany(e => e.Items)
                       .WithOne()
@@ -84,7 +92,8 @@ namespace InvoiceSystem.Infrastructure.Data
                 entity.Property(e => e.DueDate).HasColumnType("timestamp without time zone");
 
                 if (_userContext != null)
-                    entity.HasQueryFilter(e => e.UserId == _userContext.UserId);
+                    entity.HasQueryFilter(e => _userContext.TeamIds.Contains(e.TeamId)
+                        && (_userContext.DataScope != "mine" || e.UserId == _userContext.UserId));
             });
 
             // Configure InvoiceItem
@@ -108,6 +117,42 @@ namespace InvoiceSystem.Infrastructure.Data
 
                 if (_userContext != null)
                     entity.HasQueryFilter(e => e.UserId == _userContext.UserId);
+            });
+
+            // Configure Team (use backing field so Add(team) persists Members, e.g. owner)
+            modelBuilder.Entity<Team>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+                entity.HasMany(e => e.Members)
+                      .WithOne(e => e.Team)
+                      .HasForeignKey(e => e.TeamId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.Navigation(e => e.Members).HasField("_members");
+            });
+
+            // Configure TeamMember (no query filter - used to load user's teams)
+            modelBuilder.Entity<TeamMember>(entity =>
+            {
+                entity.HasKey(e => new { e.TeamId, e.UserId });
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.JoinedAt).HasColumnType("timestamp without time zone");
+            });
+
+            // Configure TeamInvitation
+            modelBuilder.Entity<TeamInvitation>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.TeamId).IsRequired();
+                entity.Property(e => e.Email).IsRequired();
+                entity.Property(e => e.InvitedByUserId).IsRequired();
+                entity.Property(e => e.Token).IsRequired();
+                entity.Property(e => e.ExpiresAt).HasColumnType("timestamp without time zone");
+                entity.HasOne(e => e.Team)
+                      .WithMany()
+                      .HasForeignKey(e => e.TeamId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

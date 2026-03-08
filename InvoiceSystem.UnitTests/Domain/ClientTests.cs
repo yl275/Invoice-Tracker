@@ -12,7 +12,7 @@ namespace InvoiceSystem.UnitTests.Domain
         [InlineData(TestData.UserId, "ABN", "Name", "")]
         public void Constructor_ShouldThrowException_WhenRequiredFieldsAreEmpty(string userId, string abn, string name, string phone)
         {
-            Action act = () => new Client(userId, abn, name, phone);
+            Action act = () => new Client(TestData.TestTeamId, userId, abn, name, phone);
             act.Should().Throw<ArgumentException>();
         }
 
@@ -23,7 +23,7 @@ namespace InvoiceSystem.UnitTests.Domain
             var name = "Test";
             var phone = "0400";
 
-            var client = new Client(TestData.UserId, abn, name, phone);
+            var client = new Client(TestData.TestTeamId, TestData.UserId, abn, name, phone);
 
             client.Should().NotBeNull();
             client.Abn.Should().Be(abn);
@@ -34,7 +34,7 @@ namespace InvoiceSystem.UnitTests.Domain
         [Fact]
         public void UpdateContactInfo_ShouldUpdateFields_WhenDataIsValid()
         {
-            var client = new Client(TestData.UserId, "123", "Old Name", "Old Phone");
+            var client = new Client(TestData.TestTeamId, TestData.UserId, "123", "Old Name", "Old Phone");
 
             client.UpdateContactInfo("New Name", "New Phone");
 

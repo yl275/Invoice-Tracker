@@ -51,8 +51,11 @@ namespace InvoiceSystem.Application.Services
         {
             if (!_userContext.HasUser)
                 throw new UnauthorizedAccessException("User must be authenticated to create a client.");
+            if (!_userContext.CurrentTeamId.HasValue)
+                throw new UnauthorizedAccessException("No team context. Join or create a team first.");
 
             var client = new Client(
+                _userContext.CurrentTeamId.Value,
                 _userContext.UserId!,
                 createClientDto.Abn,
                 createClientDto.Name,

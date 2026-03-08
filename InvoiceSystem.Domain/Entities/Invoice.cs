@@ -3,6 +3,7 @@ namespace InvoiceSystem.Domain.Entities;
 public class Invoice
 {
     public Guid Id { get; private set; }
+    public Guid TeamId { get; private set; }
     public string UserId { get; private set; } = null!;
     public string InvoiceCode { get; private set; }
     public DateTime InvoiceDate { get; private set; }
@@ -43,6 +44,7 @@ public class Invoice
     }
 
     public Invoice(
+        Guid teamId,
         string userId,
         string invoiceCode,
         DateTime invoiceDate,
@@ -50,6 +52,7 @@ public class Invoice
         BusinessProfile businessProfile,
         DateTime? dueDate = null)
     {
+        if (teamId == Guid.Empty) throw new ArgumentException("Team ID cannot be empty", nameof(teamId));
         if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentException("User ID cannot be empty", nameof(userId));
         if (string.IsNullOrWhiteSpace(invoiceCode)) throw new ArgumentException("Invoice Code cannot be empty", nameof(invoiceCode));
         if (client == null) throw new ArgumentNullException(nameof(client));
@@ -58,6 +61,7 @@ public class Invoice
         if (resolvedDueDate < invoiceDate.Date) throw new ArgumentException("Due date cannot be earlier than invoice date", nameof(dueDate));
 
         Id = Guid.NewGuid();
+        TeamId = teamId;
         UserId = userId;
         InvoiceCode = invoiceCode;
         InvoiceDate = invoiceDate;

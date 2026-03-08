@@ -16,7 +16,7 @@ namespace InvoiceSystem.Infrastructure.Repositories
 
         public async Task<Product?> GetByIdAsync(Guid id)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task AddAsync(Product product)
@@ -38,7 +38,7 @@ namespace InvoiceSystem.Infrastructure.Repositories
 
         public async Task DeleteAsync(Guid id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product != null)
             {
                 _context.Products.Remove(product);

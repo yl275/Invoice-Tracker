@@ -28,6 +28,10 @@ export function setApiAuth(getToken: (() => Promise<string | null>) | null) {
     } else if (import.meta.env.DEV) {
       config.headers["X-User-Id"] = "user_demo";
     }
+    const scope = typeof localStorage !== "undefined" ? localStorage.getItem("dataScope") : null;
+    config.headers["X-Data-Scope"] = scope === "mine" ? "mine" : "team";
+    const currentTeamId = typeof localStorage !== "undefined" ? localStorage.getItem("currentTeamId") : null;
+    if (currentTeamId) config.headers["X-Current-Team-Id"] = currentTeamId;
     return config;
   });
 }

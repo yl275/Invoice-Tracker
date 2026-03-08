@@ -21,6 +21,8 @@ namespace InvoiceSystem.UnitTests.Services
             _userContextMock = new Mock<IUserContext>();
             _userContextMock.Setup(x => x.UserId).Returns(TestData.UserId);
             _userContextMock.Setup(x => x.HasUser).Returns(true);
+            _userContextMock.Setup(x => x.CurrentTeamId).Returns(TestData.TestTeamId);
+            _userContextMock.Setup(x => x.TeamIds).Returns(new List<Guid> { TestData.TestTeamId });
             _productService = new ProductService(_productRepositoryMock.Object, _userContextMock.Object);
         }
 
@@ -70,7 +72,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product(TestData.UserId, "Widget", "SKU", 10m);
+            var product = new Product(TestData.TestTeamId, TestData.UserId, "Widget", "SKU", 10m);
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
 
             // Act
@@ -102,8 +104,8 @@ namespace InvoiceSystem.UnitTests.Services
             // Arrange
             var products = new List<Product>
             {
-                new Product(TestData.UserId, "P1", "S1", 10m),
-                new Product(TestData.UserId, "P2", "S2", 20m)
+                new Product(TestData.TestTeamId, TestData.UserId, "P1", "S1", 10m),
+                new Product(TestData.TestTeamId, TestData.UserId, "P2", "S2", 20m)
             };
             _productRepositoryMock.Setup(x => x.ListAsync()).ReturnsAsync(products);
 
@@ -119,7 +121,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product(TestData.UserId, "Old Name", "Old SKU", 5m);
+            var product = new Product(TestData.TestTeamId, TestData.UserId, "Old Name", "Old SKU", 5m);
             var updateDto = new UpdateProductDto
             {
                 Name = "New Name",
@@ -159,7 +161,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product(TestData.UserId, "Name", "SKU", 10m);
+            var product = new Product(TestData.TestTeamId, TestData.UserId, "Name", "SKU", 10m);
             var updateDto = new UpdateProductDto { Name = "New Name", SKU = "New SKU", Price = -5m };
 
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
@@ -176,7 +178,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product(TestData.UserId, "Name", "SKU", 10m);
+            var product = new Product(TestData.TestTeamId, TestData.UserId, "Name", "SKU", 10m);
             var updateDto = new UpdateProductDto { Name = "", SKU = "New SKU", Price = 10m };
 
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
@@ -193,7 +195,7 @@ namespace InvoiceSystem.UnitTests.Services
         {
             // Arrange
             var productId = Guid.NewGuid();
-            var product = new Product(TestData.UserId, "Name", "SKU", 10m);
+            var product = new Product(TestData.TestTeamId, TestData.UserId, "Name", "SKU", 10m);
             var updateDto = new UpdateProductDto { Name = "New Name", SKU = "", Price = 10m };
 
             _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);

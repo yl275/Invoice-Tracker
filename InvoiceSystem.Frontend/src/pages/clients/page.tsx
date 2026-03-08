@@ -11,19 +11,30 @@ export default function ClientsPage() {
   const [data, setData] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await api.get<Client[]>("/clients");
-        setData(response.data);
-      } catch (error) {
-        console.error("Failed to fetch clients", error);
-      } finally {
-        setLoading(false);
-      }
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get<Client[]>("/clients");
+      setData(response.data);
+    } catch (error) {
+      console.error("Failed to fetch clients", error);
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const refetch = () => fetchData();
+    window.addEventListener("dataScopeChange", refetch);
+    window.addEventListener("teamMembershipChange", refetch);
+    return () => {
+      window.removeEventListener("dataScopeChange", refetch);
+      window.removeEventListener("teamMembershipChange", refetch);
+    };
   }, []);
 
   return (

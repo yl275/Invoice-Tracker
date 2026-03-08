@@ -3,6 +3,7 @@ namespace InvoiceSystem.Domain.Entities;
 public class Product
 {
     public Guid Id { get; private set; }
+    public Guid TeamId { get; private set; }
     public string UserId { get; private set; } = null!;
     public string Name { get; private set; }
     public string SKU { get; private set; }
@@ -14,14 +15,16 @@ public class Product
         SKU = null!;
     }
 
-    public Product(string userId, string name, string sku, decimal price)
+    public Product(Guid teamId, string userId, string name, string sku, decimal price)
     {
+        if (teamId == Guid.Empty) throw new ArgumentException("Team ID cannot be empty", nameof(teamId));
         if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentException("User ID cannot be empty", nameof(userId));
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be empty", nameof(name));
         if (string.IsNullOrWhiteSpace(sku)) throw new ArgumentException("SKU cannot be empty", nameof(sku));
         if (price <= 0) throw new ArgumentException("Price must be greater than zero", nameof(price));
 
         Id = Guid.NewGuid();
+        TeamId = teamId;
         UserId = userId;
         Name = name;
         SKU = sku;

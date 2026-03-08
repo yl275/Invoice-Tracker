@@ -34,6 +34,8 @@ namespace InvoiceSystem.Application.Services
         {
             if (!_userContext.HasUser)
                 throw new UnauthorizedAccessException("User must be authenticated to create an invoice.");
+            if (!_userContext.CurrentTeamId.HasValue)
+                throw new UnauthorizedAccessException("No team context. Join or create a team first.");
 
             var userId = _userContext.UserId!;
             var client = await _clientRepository.GetByIdAsync(createInvoiceDto.ClientId);
@@ -50,6 +52,7 @@ namespace InvoiceSystem.Application.Services
                 ?? createInvoiceDto.InvoiceDate.AddDays(createInvoiceDto.DueInDays ?? 30);
 
             var invoice = new Invoice(
+                _userContext.CurrentTeamId!.Value,
                 userId,
                 createInvoiceDto.InvoiceCode,
                 createInvoiceDto.InvoiceDate,

@@ -17,6 +17,7 @@ namespace InvoiceSystem.Infrastructure
             services.AddScoped<IBusinessProfileRepository, BusinessProfileRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+            services.AddScoped<ITeamRepository, TeamRepository>();
 
             return services;
         }

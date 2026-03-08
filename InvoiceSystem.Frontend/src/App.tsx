@@ -14,6 +14,8 @@ import ProductsPage from "./pages/products/page";
 import CreateProductPage from "./pages/products/create/page";
 import EditProductPage from "./pages/products/edit/page";
 import ProfilePage from "./pages/profile/page";
+import TeamPage from "./pages/team/page";
+import InviteAcceptPage from "./pages/invite/page";
 import HomePage from "./pages/public/home/page";
 import PricingPage from "./pages/public/pricing/page";
 import DocsPage from "./pages/public/docs/page";
@@ -73,6 +75,8 @@ function App() {
 
         <Route path="/dashboard" element={<Navigate to="/invoices" replace />} />
 
+        <Route path="/invite" element={<InviteAcceptPage />} />
+
         <Route element={publishableKey ? <RequireAuth><MainLayout /></RequireAuth> : <MainLayout />}>
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="invoices/create" element={<CreateInvoicePage />} />
@@ -84,6 +88,7 @@ function App() {
           <Route path="products/create" element={<CreateProductPage />} />
           <Route path="products/:id/edit" element={<EditProductPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="team" element={<TeamPage />} />
         </Route>
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>

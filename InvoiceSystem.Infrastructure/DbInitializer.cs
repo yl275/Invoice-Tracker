@@ -13,15 +13,18 @@ namespace InvoiceSystem.Infrastructure
         {
             context.Database.Migrate();
 
+            // Ensure demo user has a team
+            var demoTeamId = EnsureDemoTeam(context);
+
             // Seed demo data for development (bypass user filter)
             if (!context.Clients.IgnoreQueryFilters().Any())
             {
                 var clients = new Client[]
                 {
-                    new Client(DemoUserId, "ABN123456789", "Acme Corp", "0400111222"),
-                    new Client(DemoUserId, "ABN987654321", "Globex Corporation", "0400333444"),
-                    new Client(DemoUserId, "ABN112233445", "Soylent Corp", "0400555666"),
-                    new Client(DemoUserId, "ABN998877665", "Initech", "0400777888")
+                    new Client(demoTeamId, DemoUserId, "ABN123456789", "Acme Corp", "0400111222"),
+                    new Client(demoTeamId, DemoUserId, "ABN987654321", "Globex Corporation", "0400333444"),
+                    new Client(demoTeamId, DemoUserId, "ABN112233445", "Soylent Corp", "0400555666"),
+                    new Client(demoTeamId, DemoUserId, "ABN998877665", "Initech", "0400777888")
                 };
                 context.Clients.AddRange(clients);
                 context.SaveChanges();
@@ -31,11 +34,11 @@ namespace InvoiceSystem.Infrastructure
             {
                 var products = new Product[]
                 {
-                    new Product(DemoUserId, "Widget A", "WID-001", 10.50m),
-                    new Product(DemoUserId, "Widget B", "WID-002", 25.00m),
-                    new Product(DemoUserId, "Super Gadget", "GAD-999", 500.00m),
-                    new Product(DemoUserId, "Flux Capacitor", "FLUX-001", 1000.00m),
-                    new Product(DemoUserId, "Sonic Screwdriver", "SONIC-001", 120.00m)
+                    new Product(demoTeamId, DemoUserId, "Widget A", "WID-001", 10.50m),
+                    new Product(demoTeamId, DemoUserId, "Widget B", "WID-002", 25.00m),
+                    new Product(demoTeamId, DemoUserId, "Super Gadget", "GAD-999", 500.00m),
+                    new Product(demoTeamId, DemoUserId, "Flux Capacitor", "FLUX-001", 1000.00m),
+                    new Product(demoTeamId, DemoUserId, "Sonic Screwdriver", "SONIC-001", 120.00m)
                 };
                 context.Products.AddRange(products);
                 context.SaveChanges();
@@ -69,14 +72,14 @@ namespace InvoiceSystem.Infrastructure
 
                 if (clients.Count > 0 && products.Count > 0 && profile != null)
                 {
-                    var invoice1 = new Invoice(DemoUserId, "INV-1001", DateTime.UtcNow.AddDays(-10), clients[0], profile);
+                    var invoice1 = new Invoice(demoTeamId, DemoUserId, "INV-1001", DateTime.UtcNow.AddDays(-10), clients[0], profile);
                     invoice1.AddItem(products[0], 5);
                     invoice1.AddItem(products[1], 2);
 
-                    var invoice2 = new Invoice(DemoUserId, "INV-1002", DateTime.UtcNow.AddDays(-5), clients[1], profile);
+                    var invoice2 = new Invoice(demoTeamId, DemoUserId, "INV-1002", DateTime.UtcNow.AddDays(-5), clients[1], profile);
                     invoice2.AddItem(products[2], 1);
 
-                    var invoice3 = new Invoice(DemoUserId, "INV-1003", DateTime.UtcNow.AddDays(-2), clients[2], profile);
+                    var invoice3 = new Invoice(demoTeamId, DemoUserId, "INV-1003", DateTime.UtcNow.AddDays(-2), clients[2], profile);
                     invoice3.AddItem(products[3], 1);
                     invoice3.AddItem(products[4], 3);
 
@@ -84,6 +87,18 @@ namespace InvoiceSystem.Infrastructure
                     context.SaveChanges();
                 }
             }
+        }
+
+        private static Guid EnsureDemoTeam(ApplicationDbContext context)
+        {
+            var member = context.TeamMembers.IgnoreQueryFilters()
+                .FirstOrDefault(m => m.UserId == DemoUserId);
+            if (member != null)
+                return member.TeamId;
+            var team = Team.Create("My workspace", DemoUserId);
+            context.Teams.Add(team);
+            context.SaveChanges();
+            return team.Id;
         }
     }
 }

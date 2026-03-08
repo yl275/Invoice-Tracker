@@ -22,6 +22,36 @@ public class DevController : ControllerBase
     }
 
     /// <summary>
+    /// Debug: returns the current request's user context and per-team entity counts (no query filter).
+    /// Use this to see why list APIs might return fewer rows than expected (e.g. TeamIds or DataScope).
+    /// </summary>
+    [HttpGet("context")]
+    public async Task<IActionResult> GetContextAsync()
+    {
+        if (!_userContext.HasUser)
+            return Ok(new { userId = (string?)null, teamIds = Array.Empty<Guid>(), dataScope = _userContext.DataScope, currentTeamId = (Guid?)null, perTeamCounts = (object?)null });
+
+        var teamIds = _userContext.TeamIds;
+        var perTeamCounts = new List<object>();
+        foreach (var tid in teamIds)
+        {
+            var clientCount = await _dbContext.Clients.IgnoreQueryFilters().CountAsync(c => c.TeamId == tid);
+            var productCount = await _dbContext.Products.IgnoreQueryFilters().CountAsync(p => p.TeamId == tid);
+            var invoiceCount = await _dbContext.Invoices.IgnoreQueryFilters().CountAsync(i => i.TeamId == tid);
+            perTeamCounts.Add(new { teamId = tid, clients = clientCount, products = productCount, invoices = invoiceCount });
+        }
+
+        return Ok(new
+        {
+            userId = _userContext.UserId,
+            teamIds = teamIds.ToArray(),
+            dataScope = _userContext.DataScope,
+            currentTeamId = _userContext.CurrentTeamId,
+            perTeamCounts
+        });
+    }
+
+    /// <summary>
     /// Development-only helper: seed some dummy data for the current user.
     /// Creates a few clients, products and invoices. Safe to call multiple times.
     /// </summary>
@@ -32,22 +62,27 @@ public class DevController : ControllerBase
         {
             return Unauthorized("No current user.");
         }
+        if (!_userContext.CurrentTeamId.HasValue)
+        {
+            return BadRequest("No team context.");
+        }
 
         var userId = _userContext.UserId!;
+        var teamId = _userContext.CurrentTeamId.Value;
 
         var random = new Random();
         var suffix = DateTime.UtcNow.Ticks % 100000;
 
         var clients = new List<Client>
         {
-            new(userId, $"ABN{random.Next(100000000, 999999999)}", $"Dev Client {suffix}-A", "0400" + random.Next(100000, 999999)),
-            new(userId, $"ABN{random.Next(100000000, 999999999)}", $"Dev Client {suffix}-B", "0400" + random.Next(100000, 999999))
+            new(teamId, userId, $"ABN{random.Next(100000000, 999999999)}", $"Dev Client {suffix}-A", "0400" + random.Next(100000, 999999)),
+            new(teamId, userId, $"ABN{random.Next(100000000, 999999999)}", $"Dev Client {suffix}-B", "0400" + random.Next(100000, 999999))
         };
 
         var products = new List<Product>
         {
-            new(userId, $"Dev Service {suffix}-A", $"DEV-{suffix}-A", Math.Round((decimal)random.NextDouble() * 500m + 50m, 2)),
-            new(userId, $"Dev Service {suffix}-B", $"DEV-{suffix}-B", Math.Round((decimal)random.NextDouble() * 500m + 50m, 2))
+            new(teamId, userId, $"Dev Service {suffix}-A", $"DEV-{suffix}-A", Math.Round((decimal)random.NextDouble() * 500m + 50m, 2)),
+            new(teamId, userId, $"Dev Service {suffix}-B", $"DEV-{suffix}-B", Math.Round((decimal)random.NextDouble() * 500m + 50m, 2))
         };
 
         await _dbContext.Clients.AddRangeAsync(clients);
@@ -75,11 +110,11 @@ public class DevController : ControllerBase
             random.NextInt64(100000000, 999999999).ToString(),
             null);
 
-        var invoice1 = new Invoice(userId, $"DEV-{suffix}-1", DateTime.UtcNow.Date, client1, demoProfile);
+        var invoice1 = new Invoice(teamId, userId, $"DEV-{suffix}-1", DateTime.UtcNow.Date, client1, demoProfile);
         invoice1.AddItem(product1, random.Next(1, 5));
         invoice1.AddItem(product2, random.Next(1, 3));
 
-        var invoice2 = new Invoice(userId, $"DEV-{suffix}-2", DateTime.UtcNow.Date.AddDays(-1), client2, demoProfile);
+        var invoice2 = new Invoice(teamId, userId, $"DEV-{suffix}-2", DateTime.UtcNow.Date.AddDays(-1), client2, demoProfile);
         invoice2.AddItem(product2, random.Next(1, 4));
 
         await _dbContext.Invoices.AddRangeAsync(invoice1, invoice2);
@@ -106,11 +141,12 @@ public class DevController : ControllerBase
         }
 
         var userId = _userContext.UserId!;
+        var teamIds = _userContext.TeamIds;
 
-        var invoices = await _dbContext.Invoices.Where(i => i.UserId == userId).ToListAsync();
-        var clients = await _dbContext.Clients.Where(c => c.UserId == userId).ToListAsync();
-        var products = await _dbContext.Products.Where(p => p.UserId == userId).ToListAsync();
-        var profiles = await _dbContext.BusinessProfiles.Where(p => p.UserId == userId).ToListAsync();
+        var invoices = await _dbContext.Invoices.IgnoreQueryFilters().Where(i => teamIds.Contains(i.TeamId)).ToListAsync();
+        var clients = await _dbContext.Clients.IgnoreQueryFilters().Where(c => teamIds.Contains(c.TeamId)).ToListAsync();
+        var products = await _dbContext.Products.IgnoreQueryFilters().Where(p => teamIds.Contains(p.TeamId)).ToListAsync();
+        var profiles = await _dbContext.BusinessProfiles.IgnoreQueryFilters().Where(p => p.UserId == userId).ToListAsync();
 
         var invoiceCount = invoices.Count;
         var clientCount = clients.Count;

@@ -3,6 +3,7 @@ namespace InvoiceSystem.Domain.Entities;
 public class Client
 {
     public Guid Id { get; private set; }
+    public Guid TeamId { get; private set; }
     public string UserId { get; private set; } = null!;
     public string Abn { get; private set; }
     public string Name { get; private set; }
@@ -22,14 +23,16 @@ public class Client
         PhoneNumber = null!;
     }
 
-    public Client(string userId, string abn, string name, string phoneNumber, string? email = null, string? comment = null)
+    public Client(Guid teamId, string userId, string abn, string name, string phoneNumber, string? email = null, string? comment = null)
     {
+        if (teamId == Guid.Empty) throw new ArgumentException("Team ID cannot be empty", nameof(teamId));
         if (string.IsNullOrWhiteSpace(userId)) throw new ArgumentException("User ID cannot be empty", nameof(userId));
         if (string.IsNullOrWhiteSpace(abn)) throw new ArgumentException("ABN cannot be empty", nameof(abn));
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be empty", nameof(name));
         if (string.IsNullOrWhiteSpace(phoneNumber)) throw new ArgumentException("Phone Number cannot be empty", nameof(phoneNumber));
 
         Id = Guid.NewGuid();
+        TeamId = teamId;
         UserId = userId;
         Abn = abn;
         Name = name;

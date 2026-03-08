@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { UserButton } from "@clerk/clerk-react";
-import { FileText, Users, Package, Menu, X, UserRound, Settings, Moon, Sun } from "lucide-react";
+import { FileText, Users, Package, Menu, X, UserRound, Settings, Moon, Sun, UsersRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +70,22 @@ export function MainLayout({ className }: SidebarProps) {
       });
   }, []);
 
+  // Keep currentTeamId in sync with teams so create/list use the right workspace
+  useEffect(() => {
+    api
+      .get<{ id: string; name: string }[]>("/teams")
+      .then((res) => {
+        const list = res.data ?? [];
+        if (list.length === 0) return;
+        const stored = typeof localStorage !== "undefined" ? localStorage.getItem("currentTeamId") : null;
+        const valid = stored && list.some((t) => t.id === stored);
+        if (!valid && typeof localStorage !== "undefined") {
+          localStorage.setItem("currentTeamId", list[0].id);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const handleThemeChange = (next: Theme) => {
     setThemeState(next);
     setTheme(next);
@@ -130,6 +146,7 @@ export function MainLayout({ className }: SidebarProps) {
     { name: "Invoices", href: "/invoices", icon: FileText },
     { name: "Clients", href: "/clients", icon: Users },
     { name: "Products", href: "/products", icon: Package },
+    { name: "Team", href: "/team", icon: UsersRound },
     { name: "Profile", href: "/profile", icon: UserRound },
   ];
 

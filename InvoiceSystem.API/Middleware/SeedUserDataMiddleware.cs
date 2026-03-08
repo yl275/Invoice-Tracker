@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using InvoiceSystem.Application.Interfaces;
 using InvoiceSystem.Domain.Entities;
 using InvoiceSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ public class SeedUserDataMiddleware
 
     public SeedUserDataMiddleware(RequestDelegate next) => _next = next;
 
-    public async Task InvokeAsync(HttpContext context, ApplicationDbContext dbContext)
+    public async Task InvokeAsync(HttpContext context, ApplicationDbContext dbContext, IUserContext userContext)
     {
         if (!context.Request.Path.StartsWithSegments("/api"))
         {
@@ -23,34 +24,41 @@ public class SeedUserDataMiddleware
             return;
         }
 
-        var userId = context.User.FindFirst("sub")?.Value;
+        var userId = context.User?.FindFirst("sub")?.Value ?? context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrWhiteSpace(userId))
         {
             await _next(context);
             return;
         }
 
-        var hasClients = await dbContext.Clients.IgnoreQueryFilters().AnyAsync(c => c.UserId == userId);
-        var hasProducts = await dbContext.Products.IgnoreQueryFilters().AnyAsync(p => p.UserId == userId);
+        var teamId = userContext.CurrentTeamId;
+        if (!teamId.HasValue)
+        {
+            await _next(context);
+            return;
+        }
+
+        var hasClients = await dbContext.Clients.IgnoreQueryFilters().AnyAsync(c => c.TeamId == teamId.Value);
+        var hasProducts = await dbContext.Products.IgnoreQueryFilters().AnyAsync(p => p.TeamId == teamId.Value);
         var hasProfile = await dbContext.BusinessProfiles.IgnoreQueryFilters().AnyAsync(p => p.UserId == userId);
 
         if (!hasClients && !hasProducts && !hasProfile)
         {
             var clients = new[]
             {
-                new Client(userId, "ABN123456789", "Acme Corp", "0400111222", "billing@acme.test", "Default seeded client"),
-                new Client(userId, "ABN987654321", "Globex Corporation", "0400333444", "finance@globex.test", "Default seeded client"),
-                new Client(userId, "ABN112233445", "Soylent Corp", "0400555666", "accounts@soylent.test", "Default seeded client"),
-                new Client(userId, "ABN998877665", "Initech", "0400777888", "payables@initech.test", "Default seeded client")
+                new Client(teamId.Value, userId, "ABN123456789", "Acme Corp", "0400111222", "billing@acme.test", "Default seeded client"),
+                new Client(teamId.Value, userId, "ABN987654321", "Globex Corporation", "0400333444", "finance@globex.test", "Default seeded client"),
+                new Client(teamId.Value, userId, "ABN112233445", "Soylent Corp", "0400555666", "accounts@soylent.test", "Default seeded client"),
+                new Client(teamId.Value, userId, "ABN998877665", "Initech", "0400777888", "payables@initech.test", "Default seeded client")
             };
 
             var products = new[]
             {
-                new Product(userId, "Widget A", "WID-001", 10.50m),
-                new Product(userId, "Widget B", "WID-002", 25.00m),
-                new Product(userId, "Super Gadget", "GAD-999", 500.00m),
-                new Product(userId, "Flux Capacitor", "FLUX-001", 1000.00m),
-                new Product(userId, "Sonic Screwdriver", "SONIC-001", 120.00m)
+                new Product(teamId.Value, userId, "Widget A", "WID-001", 10.50m),
+                new Product(teamId.Value, userId, "Widget B", "WID-002", 25.00m),
+                new Product(teamId.Value, userId, "Super Gadget", "GAD-999", 500.00m),
+                new Product(teamId.Value, userId, "Flux Capacitor", "FLUX-001", 1000.00m),
+                new Product(teamId.Value, userId, "Sonic Screwdriver", "SONIC-001", 120.00m)
             };
 
             var emailFromClaim = context.User.FindFirst(ClaimTypes.Email)?.Value

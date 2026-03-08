@@ -16,7 +16,7 @@ namespace InvoiceSystem.Infrastructure.Repositories
 
         public async Task<Client?> GetByIdAsync(Guid id)
         {
-            return await _context.Clients.FindAsync(id);
+            return await _context.Clients.FirstOrDefaultAsync(c => c.Id == id);
         }
 
         public async Task AddAsync(Client client)
@@ -38,7 +38,7 @@ namespace InvoiceSystem.Infrastructure.Repositories
 
         public async Task DeleteAsync(Guid id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _context.Clients.FirstOrDefaultAsync(c => c.Id == id);
             if (client != null)
             {
                 _context.Clients.Remove(client);

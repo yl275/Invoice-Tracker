@@ -67,6 +67,25 @@ export interface CreateInvoiceItemRequest {
   quantity: number;
 }
 
+export interface TeamDto {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface TeamMemberDto {
+  userId: string;
+  role: string;
+  joinedAt: string;
+}
+
+export interface TeamInvitationDto {
+  id: string;
+  email: string;
+  expiresAt: string;
+  inviteLink: string;
+}
+
 export interface CreateClientRequest {
   name: string;
   abn: string;

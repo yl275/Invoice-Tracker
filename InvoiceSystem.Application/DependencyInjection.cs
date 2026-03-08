@@ -12,6 +12,7 @@ namespace InvoiceSystem.Application
             services.AddScoped<IClientService, ClientService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IInvoiceService, InvoiceService>();
+            services.AddScoped<ITeamService, TeamService>();
 
             return services;
         }

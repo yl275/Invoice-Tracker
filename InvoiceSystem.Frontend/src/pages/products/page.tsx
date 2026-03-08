@@ -12,19 +12,30 @@ export default function ProductsPage() {
   const [data, setData] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await api.get<Product[]>("/products");
-        setData(response.data);
-      } catch (error) {
-        console.error("Failed to fetch products", error);
-      } finally {
-        setLoading(false);
-      }
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get<Product[]>("/products");
+      setData(response.data);
+    } catch (error) {
+      console.error("Failed to fetch products", error);
+    } finally {
+      setLoading(false);
     }
+  };
 
+  useEffect(() => {
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const refetch = () => fetchData();
+    window.addEventListener("dataScopeChange", refetch);
+    window.addEventListener("teamMembershipChange", refetch);
+    return () => {
+      window.removeEventListener("dataScopeChange", refetch);
+      window.removeEventListener("teamMembershipChange", refetch);
+    };
   }, []);
 
   async function handleDelete(productId: string) {
